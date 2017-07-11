@@ -7,7 +7,7 @@
     <authors>James Payor, Draftable</authors>
     <owners>James Payor, Draftable</owners>
     <projectUrl>https://github.com/draftable/compare-api-net-client</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/draftable/compare-api-python-client/master/nuget-icon.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/draftable/compare-api-net-client/master/nuget-icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>.NET client library for the Draftable document comparison API - https://draftable.com/comparison-api</summary>
     <description>This package provides a thin client for the Draftable Compare API. We support .NET Framework 4.5.2 and higher.</description>
