@@ -2,7 +2,7 @@
 
 This is a thin .NET client for Draftable's [document comparison API](https://draftable.com/comparison-api).
 It wraps the available endpoints, and handles authentication and signing for you.
-The library will be available on NuGet soon.
+The library is [available on NuGet](https://www.nuget.org/packages/Draftable.CompareAPI.Client/) as `DraftableCompareAPI.Client`.
 
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
 
@@ -10,7 +10,7 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
 
 - Sign up for free at [api.draftable.com](https://api.draftable.com) to get your credentials.
 
-- Add a reference to the `Draftable.CompareAPI.Client` project.
+- Install the [`Draftable.CompareAPI.Client` NuGet package](https://www.nuget.org/packages/Draftable.CompareAPI.Client/). This will add a reference to `Draftable.CompareAPI.Client`.
 
 - Start creating comparisons:
     ```
