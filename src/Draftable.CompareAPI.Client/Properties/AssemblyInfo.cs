@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Draftable.CompareAPI.Client")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription(".NET client library for the Draftable document comparison API")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Draftable")]
 [assembly: AssemblyProduct("Draftable.CompareAPI.Client")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright © Draftable 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

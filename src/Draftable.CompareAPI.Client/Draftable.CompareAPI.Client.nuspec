@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Draftable.CompareAPI.Client</id>
+    <title>Draftable Compare API - Client Library</title>
+    <version>$version$</version>
+    <authors>James Payor, Draftable</authors>
+    <owners>James Payor, Draftable</owners>
+    <projectUrl>https://github.com/draftable/compare-api-net-client</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/draftable/compare-api-python-client/master/nuget-icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>.NET client library for the Draftable document comparison API - https://draftable.com/comparison-api</summary>
+    <description>This package provides a thin client for the Draftable Compare API. We support .NET Framework 4.5.2 and higher.</description>
+    <language>en-US</language>
+    <tags>draftable document comparison compare api online pdf word powerpoint docx docm doc pptx pptm ppt</tags>
+    <copyright>Copyright (c) 2017 Draftable</copyright>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="10.0.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin/Release/Draftable.CompareAPI.Client.dll" target="lib\net45" />
+    <file src="bin/Release/Draftable.CompareAPI.Client.pdb" target="lib\net45" />
+  </files>
+</package>
