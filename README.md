@@ -20,10 +20,12 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
             Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf")
         );
 
+        var viewerURL = comparisons.SignedViewerURL(comparison.Identifier, validFor: TimeSpan.FromMinutes(30));
+
         Console.WriteLine("Comparison created:");
         Console.WriteLine(comparison);
         Console.WriteLine();
-        Console.WriteLine("Viewer URL (expires in 30 min): {0}", comparisons.SignedViewerURL(comparison.Identifier));
+        Console.WriteLine($"Viewer URL (expires in 30 min): {viewerURL}");
     }
     ```
 
