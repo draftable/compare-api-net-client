@@ -267,7 +267,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                return DeserializeComparison(await _client.GetAsync(URLs.Comparison(identifier), cancellationToken));
+                return DeserializeComparison(await _client.GetAsync(URLs.Comparison(identifier), cancellationToken).ConfigureAwait(false));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -320,7 +320,7 @@ namespace Draftable.CompareAPI.Client
         public async Task<List<Comparison>> GetAllAsync(CancellationToken cancellationToken)
         {
             try {
-                return DeserializeAllComparisons(await _client.GetAsync(URLs.Comparisons, cancellationToken));
+                return DeserializeAllComparisons(await _client.GetAsync(URLs.Comparisons, cancellationToken).ConfigureAwait(false));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -382,7 +382,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                await _client.DeleteAsync(URLs.Comparison(identifier), cancellationToken);
+                await _client.DeleteAsync(URLs.Comparison(identifier), cancellationToken).ConfigureAwait(false);
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -656,7 +656,7 @@ namespace Draftable.CompareAPI.Client
                         {"expires", SerializeDateTime(DateTime.UtcNow + expires)},
                     }.Concat(left.GetFormData("left")).Concat(right.GetFormData("right")),
                     files: left.GetFileContent("left").Concat(right.GetFileContent("right"))
-                ));
+                ).ConfigureAwait(false));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw BadRequestException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }

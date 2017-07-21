@@ -88,7 +88,7 @@ namespace Draftable.CompareAPI.Client.Internal
         private static async Task CheckStatusIsAsExpected([NotNull] HttpResponseMessage response, HttpStatusCode expectedStatusCode)
         {
             if (response.StatusCode != expectedStatusCode) {
-                var responseContent = await response.Content.AssertNotNull().ReadAsStringAsync();
+                var responseContent = await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false);
                 throw new UnexpectedResponseException(expectedHttpStatusCode: expectedStatusCode,
                                                       responseHttpStatusCode: response.StatusCode,
                                                       responseReason: response.ReasonPhrase ?? response.StatusCode.ToString(),
@@ -208,10 +208,10 @@ namespace Draftable.CompareAPI.Client.Internal
         [NotNull, ItemNotNull]
         public async Task<string> GetAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            using (var response = await _httpClient.GetAsync(PrepareURI(endpoint, queryParameters), HttpCompletionOption.ResponseContentRead, cancellationToken).AssertNotNull()) {
+            using (var response = await _httpClient.GetAsync(PrepareURI(endpoint, queryParameters), HttpCompletionOption.ResponseContentRead, cancellationToken).AssertNotNull().ConfigureAwait(false)) {
                 cancellationToken.ThrowIfCancellationRequested();
-                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode);
-                return (await response.Content.AssertNotNull().ReadAsStringAsync()).AssertNotNull();
+                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
+                return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
             }
         }
 
@@ -240,9 +240,9 @@ namespace Draftable.CompareAPI.Client.Internal
         [NotNull]
         public async Task DeleteAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
         {
-            using (var response = await _httpClient.DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken).AssertNotNull()) {
+            using (var response = await _httpClient.DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
                 cancellationToken.ThrowIfCancellationRequested();
-                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode);
+                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
             }
         }
 
@@ -285,10 +285,10 @@ namespace Draftable.CompareAPI.Client.Internal
                                             [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
                                             HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
         {
-            using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull()) {
+            using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
                 cancellationToken.ThrowIfCancellationRequested();
-                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode);
-                return (await response.Content.AssertNotNull().ReadAsStringAsync()).AssertNotNull();
+                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
+                return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
             }
         }
 
