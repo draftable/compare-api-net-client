@@ -3,7 +3,7 @@
   <metadata>
     <id>Draftable.CompareAPI.Client</id>
     <title>Draftable Compare API - Client Library</title>
-    <version>$version$</version>
+    <version>1.0.1</version>
     <authors>James Payor, Draftable</authors>
     <owners>James Payor, Draftable</owners>
     <projectUrl>https://github.com/draftable/compare-api-net-client</projectUrl>
