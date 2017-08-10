@@ -171,12 +171,21 @@ namespace Draftable.CompareAPI.Client.Internal
             [NotNull] public string ResponseContent { get; }
 
             public UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode, HttpStatusCode responseHttpStatusCode, [NotNull] string responseReason, [NotNull] string responseContent)
-                : base($"Expected a response with status code {expectedHttpStatusCode} but instead received status {responseHttpStatusCode} (\"{responseReason}\"). Response:\n{responseContent}")
+                : base($"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead received status `HttpStatusCode.{responseHttpStatusCode}` (\"{responseReason}\"). Response:\n{responseContent}")
             {
                 ExpectedHttpStatusCode = expectedHttpStatusCode;
                 ResponseHttpStatusCode = responseHttpStatusCode;
                 ResponseReason = responseReason;
                 ResponseContent = responseContent;
+            }
+
+            internal UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode, HttpStatusCode responseHttpStatusCode, [NotNull] string errorReason, [NotNull] HttpRequestException exception) :
+                base($"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead an error occurred:\n{errorReason}", exception)
+            {
+                ExpectedHttpStatusCode = expectedHttpStatusCode;
+                ResponseHttpStatusCode = responseHttpStatusCode;
+                ResponseReason = errorReason;
+                ResponseContent = "";
             }
         }
 
@@ -285,10 +294,22 @@ namespace Draftable.CompareAPI.Client.Internal
                                             [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
                                             HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
         {
-            using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
-                cancellationToken.ThrowIfCancellationRequested();
-                await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
-                return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
+            try {
+                using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
+                    return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
+                }
+            } catch (HttpRequestException ex) {
+                // If we upload files but have bad credentials, then the server seems to terminate the connection prematurely.
+                // This gives us a particular exception that we can check for, and then rethrow a more appropriate exception.
+                if (files != null) {
+                    if (ex.InnerException?.Message == "The underlying connection was closed: The connection was closed unexpectedly.") {
+                        // ReSharper disable once ThrowFromCatchWithNoInnerException
+                        throw new UnexpectedResponseException(expectedStatusCode, HttpStatusCode.Unauthorized, "Connection terminated early due to authentication failure - check that your auth token is valid.", ex);
+                    }
+                }
+                throw;
             }
         }
 
