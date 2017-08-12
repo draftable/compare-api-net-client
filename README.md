@@ -4,6 +4,8 @@ This is a thin .NET client for Draftable's [document comparison API](https://dra
 It wraps the available endpoints, and handles authentication and signing for you.
 The library is [available on NuGet](https://www.nuget.org/packages/Draftable.CompareAPI.Client/) as `DraftableCompareAPI.Client`.
 
+The examples in this README are all in C#, but any CLR-based language (e.g. F#, VB.NET) is supported.
+
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
 
 ### Getting started
@@ -36,7 +38,7 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
 ### Dependencies and supported .NET frameworks
 The client depends on the `Newtonsoft.Json` NuGet package for serialization.
 
-The client is built against version 4.5.2 of the .NET framework, so version 4.5.2 and higher are supported.
+The client is built against version 4.5.2 of the .NET framework, so framework versions 4.5.2 and higher are supported.
 
 ### Design notes
 
