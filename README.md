@@ -286,6 +286,15 @@ The comparison viewer will display a loading animation, waiting for the comparis
 
 - `Comparisons.GenerateIdentifier()` generates a random unique identifier for you to use.
 
+
+### Proxying and advanced configuration
+
+By default, the client library respects `<system.net>...</system.net>` settings in your app's configuration file, as well as any system-wide internet settings (e.g. proxy server) set in `Internet Options`.
+
+If you need to customize request settings, you can add settings to application config (e.g. see [this MSDN page](https://docs.microsoft.com/en-us/dotnet/framework/network-programming/proxy-configuration) for proxy configuration). Alternatively, you can use a constructor for `Comparisons` that takes in a configuration callback.
+
+The configuration callback is an `Action<HttpClientHandler>` that can perform any necessary configuration of the client library's underlying `HttpClientHandler`, including setting proxy settings, timeouts, or other request parameters.
+
 -----
 
 That's it! Please report issues you encounter, and we'll work quickly to resolve them. Contact us at [support@draftable.com](mailto://support@draftable.com) if you need assistance.
