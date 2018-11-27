@@ -1,27 +1,56 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Draftable.CompareAPI.Client;
-using JetBrains.Annotations;
-
 
 namespace Tests
 {
     internal static class Program
     {
-        // ReSharper disable AssignNullToNotNullAttribute
-        [NotNull] private static readonly string AccountId = ConfigurationManager.AppSettings["accountId"];
-        [NotNull] private static readonly string AuthToken = ConfigurationManager.AppSettings["authToken"];
-        // ReSharper restore AssignNullToNotNullAttribute
+        private static readonly string CloudAccountId = ConfigurationManager.AppSettings["cloudAccountId"];
+        private static readonly string CloudAuthToken = ConfigurationManager.AppSettings["cloudAuthToken"];
+        private static readonly string SelfHostedAccountId = ConfigurationManager.AppSettings["selfHostedAccountId"];
+        private static readonly string SelfHostedAuthToken = ConfigurationManager.AppSettings["selfHostedAuthToken"];
+        private static readonly string SelfHostedBaseUrl = ConfigurationManager.AppSettings["selfHostedBaseUrl"];
 
         private static void Main(string[] args)
         {
-            using (var comparisons = new Comparisons(AccountId, AuthToken)) {
+            try
+            {
+                RunComparisonInCloud();
+                RunComparisonWithSelfHosted();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failure when trying to run a comparison");
+                Console.WriteLine(e);
+            }
+        }
+
+        private static void RunComparisonWithSelfHosted()
+        {
+            RunComparison(SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
+        }
+
+        private static void RunComparisonInCloud()
+        {
+            RunComparison(CloudAccountId, CloudAuthToken, KnownURLs.CloudBaseURL);
+        }
+
+        private static void RunComparison(string accountId, string authToken, string compareServiceBaseUrl)
+        {
+            if (accountId == null)
+            {
+                throw new ArgumentException("AccountId must be configured to run the tests");
+            }
+
+            if (authToken == null)
+            {
+                throw new ArgumentException("AuthToken must be configured to run the tests");
+            }
+            
+            using (var comparisons = new Comparisons(accountId, authToken, compareServiceBaseUrl))
+            {
                 var identifier = Comparisons.GenerateIdentifier();
 
                 Process.Start(comparisons.SignedViewerURL(identifier, validFor: TimeSpan.FromMinutes(30), wait: true));
@@ -35,8 +64,6 @@ namespace Tests
 
                 Console.WriteLine(comparison);
             }
-            
-            Console.ReadLine();
         }
     }
 }

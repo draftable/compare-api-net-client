@@ -54,6 +54,7 @@
     <Compile Include="Internal\RestApiClient.cs" />
     <Compile Include="JetBrains.Annotations.cs" />
     <Compile Include="Comparisons.cs" />
+    <Compile Include="KnownURLs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

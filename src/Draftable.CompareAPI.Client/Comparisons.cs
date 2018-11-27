@@ -52,30 +52,47 @@ namespace Draftable.CompareAPI.Client
         #endregion Read-only properties: AccountId, AuthToken
 
         #region Constructors
-
+        
         /// <summary>
-        /// Construct a new <see cref="Comparisons"/> API client for the given credentials.
+        /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable cloud compare service. 
         /// </summary>
         /// <param name="accountId">The unique identifier for the API user's testing or live account.</param>
         /// <param name="authToken">The corresponding private authorization token, associated with the API user's testing or live account.</param>
         [PublicAPI]
         public Comparisons([NotNull] string accountId, [NotNull] string authToken)
             // ReSharper disable once ExceptionNotDocumented
-            : this(accountId, authToken, httpClientHandlerConfigurator: null) {}
-
+            : this(accountId, authToken, KnownURLs.CloudBaseURL, httpClientHandlerConfigurator: null) {}
+        
         /// <summary>
-        /// Construct a new <see cref="Comparisons"/> API client for the given credentials, with custom configuration for the underlying <see cref="HttpClientHandler"/>.
+        /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable instance pointed to by the base URL.
         /// </summary>
         /// <param name="accountId">The unique identifier for the API user's testing or live account.</param>
         /// <param name="authToken">The corresponding private authorization token, associated with the API user's testing or live account.</param>
+        /// <param name="baseURL">Base API URL</param>
+        /// /// <remarks>
+        /// Use this overload if you need to connect to non-cloud instance of Draftable (for example, the local self-hosted). 
+        /// </remarks>
+        [PublicAPI]
+        public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL)
+            // ReSharper disable once ExceptionNotDocumented
+            : this(accountId, authToken, baseURL, httpClientHandlerConfigurator: null) {}
+
+        /// <summary>
+        /// Construct a new <see cref="Comparisons"/> API client for the given credentials,  connecting to Draftable instance pointed to by the base URL, with custom configuration for the underlying <see cref="HttpClientHandler"/>.
+        /// </summary>
+        /// <param name="accountId">The unique identifier for the API user's testing or live account.</param>
+        /// <param name="authToken">The corresponding private authorization token, associated with the API user's testing or live account.</param>
+        /// <param name="baseURL">Base API URL</param>
         /// <param name="httpClientHandlerConfigurator">A callback that will be immediately invoked to configure the <see cref="HttpClientHandler"/> that will be used to make requests in the underlying <see cref="HttpClient"/>.</param>
         /// <remarks>
         /// Use this overload if you need to configure the <see cref="HttpClientHandler"/> to e.g. use a proxy server.
         /// </remarks>
         /// <exception cref="Exception">The given <paramref name="httpClientHandlerConfigurator" /> callback threw an exception or misconfigured the <see cref="HttpClientHandler" />.</exception>
         [PublicAPI]
-        public Comparisons([NotNull] string accountId, [NotNull] string authToken, [CanBeNull, InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
+        public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL, 
+            [CanBeNull, InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
         {
+            _urls = new URLs(baseURL);
             AccountId = accountId ?? throw new ArgumentNullException(nameof(accountId));
             AuthToken = authToken ?? throw new ArgumentNullException(nameof(authToken));
 
@@ -234,7 +251,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                return DeserializeComparison(_client.Get(URLs.Comparison(identifier)));
+                return DeserializeComparison(_client.Get(_urls.Comparison(identifier)));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -267,7 +284,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                return DeserializeComparison(await _client.GetAsync(URLs.Comparison(identifier), cancellationToken).ConfigureAwait(false));
+                return DeserializeComparison(await _client.GetAsync(_urls.Comparison(identifier), cancellationToken).ConfigureAwait(false));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -286,7 +303,7 @@ namespace Draftable.CompareAPI.Client
         public List<Comparison> GetAll()
         {
             try {
-                return DeserializeAllComparisons(_client.Get(URLs.Comparisons));
+                return DeserializeAllComparisons(_client.Get(_urls.Comparisons));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -320,7 +337,7 @@ namespace Draftable.CompareAPI.Client
         public async Task<List<Comparison>> GetAllAsync(CancellationToken cancellationToken)
         {
             try {
-                return DeserializeAllComparisons(await _client.GetAsync(URLs.Comparisons, cancellationToken).ConfigureAwait(false));
+                return DeserializeAllComparisons(await _client.GetAsync(_urls.Comparisons, cancellationToken).ConfigureAwait(false));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -345,7 +362,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                _client.Delete(URLs.Comparison(identifier));
+                _client.Delete(_urls.Comparison(identifier));
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -382,7 +399,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             try {
-                await _client.DeleteAsync(URLs.Comparison(identifier), cancellationToken).ConfigureAwait(false);
+                await _client.DeleteAsync(_urls.Comparison(identifier), cancellationToken).ConfigureAwait(false);
             } catch (RestApiClient.UnexpectedResponseException ex) {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
@@ -585,7 +602,7 @@ namespace Draftable.CompareAPI.Client
             ValidateExpires(expires);
             try {
                 return DeserializeComparison(_client.Post(
-                    URLs.Comparisons,
+                    _urls.Comparisons,
                     data: new Dictionary<string, string> {
                         {"identifier", identifier},
                         {"public", isPublic ? "true" : null},
@@ -648,7 +665,7 @@ namespace Draftable.CompareAPI.Client
             ValidateExpires(expires);
             try {
                 return DeserializeComparison(await _client.PostAsync(
-                    URLs.Comparisons,
+                    _urls.Comparisons,
                     cancellationToken: cancellationToken,
                     data: new Dictionary<string, string> {
                         {"identifier", identifier},
@@ -682,7 +699,7 @@ namespace Draftable.CompareAPI.Client
         public string PublicViewerURL([NotNull] string identifier, bool wait = false)
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
-            var url = URLs.ComparisonViewer(AccountId, identifier);
+            var url = _urls.ComparisonViewer(AccountId, identifier);
             if (wait) {
                 url += "?wait";
             }
@@ -738,7 +755,7 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
 
-            var baseURL = URLs.ComparisonViewer(AccountId, identifier);
+            var baseURL = _urls.ComparisonViewer(AccountId, identifier);
             var validUntilTimestamp = Signing.ValidUntilTimestamp(validUntil);
             var signature = Signing.ViewerSignatureFor(accountId: AccountId, authToken: AuthToken, identifier: identifier, validUntilTimestamp: validUntilTimestamp);
 
@@ -799,17 +816,22 @@ namespace Draftable.CompareAPI.Client
 
         #region URLs
 
-        private static class URLs
+        private class URLs
         {
-            [NotNull] private const string APIBaseURL = "https://api.draftable.com/v1";
+            [NotNull] private readonly string _baseUrl;
 
-            [NotNull] public const string Comparisons = APIBaseURL + "/comparisons";
+            public URLs([NotNull] string baseURL)
+            {
+                _baseUrl = baseURL;
+            }
+            
+            [NotNull] public string Comparisons => _baseUrl + "/comparisons";
 
             [NotNull]
-            public static string Comparison([NotNull] string identifier) => $"{Comparisons}/{identifier}";
+            public string Comparison([NotNull] string identifier) => $"{Comparisons}/{identifier}";
 
             [NotNull]
-            public static string ComparisonViewer([NotNull] string accountId, [NotNull] string identifier) => $"{Comparisons}/viewer/{accountId}/{identifier}";
+            public string ComparisonViewer([NotNull] string accountId, [NotNull] string identifier) => $"{Comparisons}/viewer/{accountId}/{identifier}";
         }
 
         #endregion URLs
@@ -959,6 +981,8 @@ namespace Draftable.CompareAPI.Client
             // PowerPoint presentations
             "pptx", "pptm", "ppt",
         };
+
+        private URLs _urls;
 
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="fileType"/> has an invalid value.</exception>
         private static void ValidateFileType([NotNull] string fileType)
