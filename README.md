@@ -71,7 +71,9 @@ To construct an API client, use `new Comparisons(string accountId, string authTo
 The `Comparisons` instance lets you manage your account's comparisons (creating new comparisons, and getting/deleting existing comparisons).
 Instances of `Comparison` are returned by API methods, and provide metadata for a given comparison.
 
-Note: If you need to customize how HTTP requests are handled (e.g. to use a proxy server), you can use a constructor overload that allows you to configure
+Note 1: the simplest `Comparisons` constructor assumes that you are going to communicate with Draftable Cloud API (Cloud API URLs start with `https://api.draftable.com/v1`). If you work with non-cloud Draftable instance (eg. a local self-hosted one), you need to use `Comparisons` constructor with `baseURL` parameter properly specified. This value depends on your local installation and if needed, ask your office Administrator for its value.
+
+Note 2: If you need to customize how HTTP requests are handled (e.g. to use a proxy server), you can use a constructor overload that allows you to configure
 the underlying `System.Net.Http.HttpClientHandler` used internally.
 
 `Comparisons` is disposable. Calling `.Dispose()` will close any underlying connections and otherwise clean up the HTTP communication layer.
