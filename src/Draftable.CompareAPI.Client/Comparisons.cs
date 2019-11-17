@@ -822,7 +822,7 @@ namespace Draftable.CompareAPI.Client
 
             public URLs([NotNull] string baseURL)
             {
-                _baseUrl = baseURL;
+                _baseUrl = baseURL.EndsWith(@"/") ? baseURL.TrimEnd('/') : baseURL;
             }
             
             [NotNull] public string Comparisons => _baseUrl + "/comparisons";
