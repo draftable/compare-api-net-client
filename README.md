@@ -76,6 +76,12 @@ Note 1: the simplest `Comparisons` constructor assumes that you are going to com
 Note 2: If you need to customize how HTTP requests are handled (e.g. to use a proxy server), you can use a constructor overload that allows you to configure
 the underlying `System.Net.Http.HttpClientHandler` used internally.
 
+Note 3: When communicating with a local Self-Hosted deployment, you may hit SSL errors. You can easily bypass them running: 
+```
+ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+```
+This is an easy way to ignore these errors process-wide. Be careful using that, you should never do this in prod, instead you should properly install SSL certificate in the client machine.
+
 `Comparisons` is disposable. Calling `.Dispose()` will close any underlying connections and otherwise clean up the HTTP communication layer.
 
 So, we'll assume you set things up as follows:

@@ -37,7 +37,7 @@ namespace Tests
                 throw new ArgumentException("To continue, you must specify Self-Hosted base URL");
             }
             
-            // Ignore SSL certificate validation
+            // Run this line to ignore SSL certificate validation (but be careful with that, it should NEVER be done in production). 
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             
             RunTestsCore("SELF-HOSTED", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
