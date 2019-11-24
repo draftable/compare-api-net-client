@@ -36,10 +36,10 @@ namespace Tests
             {
                 throw new ArgumentException("To continue, you must specify Self-Hosted base URL");
             }
-            
-            // Run this line to ignore SSL certificate validation (but be careful with that, it should NEVER be done in production). 
+
+            // Run this line to ignore SSL certificate validation (but be careful with that, it should NEVER be done in production).
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-            
+
             RunTestsCore("SELF-HOSTED", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
         }
 
@@ -59,32 +59,48 @@ namespace Tests
             {
                 throw new ArgumentException("AuthToken must be configured to run the tests");
             }
-            
-            using (var comparisons = new Comparisons(accountId, authToken, compareServiceBaseUrl))
+
+            using (var client = new Comparisons(accountId, authToken, compareServiceBaseUrl))
             {
-                var list = comparisons.GetAll();
+                var list = client.GetAll();
                 var count1 = list.Count;
                 Console.WriteLine($"[{label}] Comparisons count: {count1}");
-                
-                var newComparison = CreateSampleComparison(comparisons);
-                var newId = newComparison.Identifier;
-                Console.WriteLine($"[{label}] New comparison: {newId}, isReady: {newComparison.Ready}, " +
-                                  $"public url: {comparisons.PublicViewerURL(newId)}, signed url: {comparisons.SignedViewerURL(newId)}");
 
-                Thread.Sleep(3000); // wait for a comparison to run to completion
-                
-                var comparisonAgain = comparisons.Get(newId);
-                Console.WriteLine($"[{label}] Retrieved again: {newId}, isReady: {comparisonAgain.Ready}, " +
-                                  $"has failed: {HasFailed(comparisonAgain)}, error message: {comparisonAgain.ErrorMessage}");
-                
-                
-                var count2 = comparisons.GetAll().Count;
+                var newId1 = CreateComparison(label, client, CreateComparisonFromUrls);
+                var newId2 = CreateComparison(label, client, CreateComparisonFromData);
+
+                var count2 = client.GetAll().Count;
                 Console.WriteLine($"[{label}] Comparisons count: {count2}");
 
-                comparisons.Delete(newId);
-                var count3 = comparisons.GetAll().Count;
+                client.Delete(newId1);
+                client.Delete(newId2);
+                var count3 = client.GetAll().Count;
                 Console.WriteLine($"[{label}] After delete, count: {count3}");
             }
+        }
+
+        private static string CreateComparison(string label, Comparisons client, Func<Comparisons, Comparison> createCore)
+        {
+            var newComparison = createCore(client);
+            var newId = newComparison.Identifier;
+            Console.WriteLine($"[{label}] New comparison: {newId}, isReady: {newComparison.Ready}, " +
+                              $"public url: {client.PublicViewerURL(newId)}, signed url: {client.SignedViewerURL(newId)}");
+
+            var timeoutCount = 0;
+            while (!newComparison.Ready)
+            {
+                if (timeoutCount > 20)
+                {
+                    throw new TimeoutException("Timeout exceeded while waiting for comparison to get ready");
+                }
+                Task.Delay(1000).Wait();
+                newComparison = client.Get(newId);
+                timeoutCount++;
+            }
+
+            Console.WriteLine($"[{label}] Retrieved again: {newId}, isReady: {newComparison.Ready}, " +
+                              $"has failed: {HasFailed(newComparison)}, error message: {newComparison.ErrorMessage}");
+            return newId;
         }
 
         private static string HasFailed(Comparison newComparison)
@@ -92,13 +108,26 @@ namespace Tests
             return newComparison.Failed == true ? "yes" : "no";
         }
 
-        private static Comparison CreateSampleComparison(Comparisons comparisons)
+        private static Comparison CreateComparisonFromUrls(Comparisons comparisons)
         {
             var identifier = Comparisons.GenerateIdentifier();
-            
+
             return comparisons.Create(
                 Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
                 Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf"),
+                identifier: identifier,
+                expires: TimeSpan.FromMinutes(30)
+            );
+        }
+
+        private static Comparison CreateComparisonFromData(Comparisons comparisons)
+        {
+            var identifier = Comparisons.GenerateIdentifier();
+
+            // TODO provide proper file urls
+            return comparisons.Create(
+                Comparisons.Side.FromFile(@"C:\draftable\testing\old.pdf"),
+                Comparisons.Side.FromFile(@"C:\draftable\testing\new.pdf"),
                 identifier: identifier,
                 expires: TimeSpan.FromMinutes(30)
             );
