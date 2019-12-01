@@ -55,7 +55,7 @@ namespace Draftable.CompareAPI.Client
                 SourceURL = sourceURL;
                 DisplayName = displayName;
             }
-            
+
             [Pure, NotNull]
             public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}).AssertNotNull();
         }
@@ -188,7 +188,7 @@ namespace Draftable.CompareAPI.Client
                 }
             }
         }
-        
+
         [Pure, NotNull]
         public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}).AssertNotNull();
     }

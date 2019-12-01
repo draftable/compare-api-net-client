@@ -52,9 +52,9 @@ namespace Draftable.CompareAPI.Client
         #endregion Read-only properties: AccountId, AuthToken
 
         #region Constructors
-        
+
         /// <summary>
-        /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable cloud compare service. 
+        /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable cloud compare service.
         /// </summary>
         /// <param name="accountId">The unique identifier for the API user's testing or live account.</param>
         /// <param name="authToken">The corresponding private authorization token, associated with the API user's testing or live account.</param>
@@ -62,7 +62,7 @@ namespace Draftable.CompareAPI.Client
         public Comparisons([NotNull] string accountId, [NotNull] string authToken)
             // ReSharper disable once ExceptionNotDocumented
             : this(accountId, authToken, KnownURLs.CloudBaseURL, httpClientHandlerConfigurator: null) {}
-        
+
         /// <summary>
         /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable instance pointed to by the base URL.
         /// </summary>
@@ -70,7 +70,7 @@ namespace Draftable.CompareAPI.Client
         /// <param name="authToken">The corresponding private authorization token, associated with the API user's testing or live account.</param>
         /// <param name="baseURL">Base API URL</param>
         /// /// <remarks>
-        /// Use this overload if you need to connect to non-cloud instance of Draftable (for example, the local self-hosted). 
+        /// Use this overload if you need to connect to non-cloud instance of Draftable (for example, the local self-hosted).
         /// </remarks>
         [PublicAPI]
         public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL)
@@ -89,7 +89,7 @@ namespace Draftable.CompareAPI.Client
         /// </remarks>
         /// <exception cref="Exception">The given <paramref name="httpClientHandlerConfigurator" /> callback threw an exception or misconfigured the <see cref="HttpClientHandler" />.</exception>
         [PublicAPI]
-        public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL, 
+        public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL,
             [CanBeNull, InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
         {
             _urls = new URLs(baseURL);
@@ -100,7 +100,7 @@ namespace Draftable.CompareAPI.Client
         }
 
         #endregion Constructors
-        
+
         #region Exceptions: RequestExceptionBase, NotFoundException, BadRequestException, InvalidCredentialsException, UnknownResponseException
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Draftable.CompareAPI.Client
             internal static RequestExceptionBase For([NotNull] RestApiClient.UnexpectedResponseException ex)
                 => ex.ResponseHttpStatusCode == HttpStatusCode.NotFound ? new NotFoundException(ex) : null;
         }
-        
+
         /// <summary>
         /// Thrown for HTTP 400 ("bad request"). Indicates that one or more parameters were invalid.
         /// </summary>
@@ -381,7 +381,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         public Task DeleteAsync([NotNull] string identifier)
             => DeleteAsync(identifier, CancellationToken.None);
-        
+
         /// <summary>
         /// Permanently deletes a comparison, removing its files and making it inaccessible.
         /// </summary>
@@ -492,7 +492,7 @@ namespace Draftable.CompareAPI.Client
             [Pure, NotNull, CollectionAccess(CollectionAccessType.Read)]
             public static Side FromFile([NotNull] byte[] fileBytes, [NotNull] string fileType, [CanBeNull] string displayName = null)
                 => new FileSide(new MemoryStream(fileBytes), fileType, displayName);
-            
+
             /// <summary>Construct a <see cref="Side"/> for a local file at the given <see cref="filePath"/> with extension inferred from the path.</summary>
             /// <param name="filePath">The location of the file.</param>
             /// <param name="displayName">An optional name to show for the file in the comparison viewer (e.g. "Report (New).docx").</param>
@@ -761,7 +761,7 @@ namespace Draftable.CompareAPI.Client
 
             return $"{baseURL}?valid_until={validUntilTimestamp}&signature={signature}{(wait ? "&wait" : "")}";
         }
-        
+
         #endregion PublicViewerURL, SignedViewerURL
 
         #region Dispose
@@ -824,7 +824,7 @@ namespace Draftable.CompareAPI.Client
             {
                 _baseUrl = baseURL.EndsWith(@"/") ? baseURL.TrimEnd('/') : baseURL;
             }
-            
+
             [NotNull] public string Comparisons => _baseUrl + "/comparisons";
 
             [NotNull]
@@ -899,7 +899,7 @@ namespace Draftable.CompareAPI.Client
         }
 
         #endregion DeserializeComparison, DeserializeComparisonArray
-        
+
         #region CheckForHttpOrHttpsURL
 
         [Pure]
@@ -963,7 +963,7 @@ namespace Draftable.CompareAPI.Client
             if (identifier.Length < minimumIdentifierLength) {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier, $"`identifier` must have at least {minimumIdentifierLength} characters.");
             }
-            
+
             if (identifier.Length > maximumIdentifierLength) {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier, $"`identifier` can have at most {maximumIdentifierLength} characters.");
             }
@@ -1006,7 +1006,7 @@ namespace Draftable.CompareAPI.Client
         }
 
         #endregion ValidateIdentifier, ValidateFileType, ValidateExpires
-        
+
         #endregion Private fields and helpers
     }
 }
