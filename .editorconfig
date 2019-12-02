@@ -21,6 +21,11 @@ trim_trailing_whitespace = false
 indent_size = 2
 insert_final_newline = false
 
+# VS config
+[.vsconfig]
+indent_size = 2
+insert_final_newline = false
+
 # VS projects
 [*.*proj]
 indent_size = 2
