@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using JetBrains.Annotations;
 
 // ReSharper disable InconsistentNaming
@@ -35,7 +34,7 @@ namespace Draftable.CompareAPI.Client.Internal
         #endregion Private fields
 
         #region Public constructor
-        
+
         /// <summary>Builds a new <see cref="RestApiClient"/>.</summary>
         /// <param name="authToken">The token to use for authorization.</param>
         /// <param name="httpClientHandlerConfigurator">A callback that can configure the <see cref="HttpClientHandler"/> underlying this <see cref="RestApiClient"/>.</param>
@@ -120,9 +119,9 @@ namespace Draftable.CompareAPI.Client.Internal
                     if (queryBuilder.Length > 0) {
                         queryBuilder.Append('&');
                     }
-                    queryBuilder.Append(HttpUtility.UrlEncode(parameterAndValue.Key));
+                    queryBuilder.Append(WebUtility.UrlEncode(parameterAndValue.Key));
                     queryBuilder.Append('=');
-                    queryBuilder.Append(HttpUtility.UrlEncode(parameterAndValue.Value));
+                    queryBuilder.Append(WebUtility.UrlEncode(parameterAndValue.Value));
                 }
                 builder.Query = queryBuilder.ToString();
             }
@@ -208,7 +207,7 @@ namespace Draftable.CompareAPI.Client.Internal
         public Task<string> GetAsync([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
             // ReSharper disable once ExceptionNotDocumented
             => GetAsync(endpoint, cancellationToken: CancellationToken.None, queryParameters: queryParameters, expectedStatusCode: expectedStatusCode);
-        
+
         // ReSharper disable ExceptionNotThrown
         /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> has had cancellation requested.</exception>
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
@@ -258,7 +257,7 @@ namespace Draftable.CompareAPI.Client.Internal
         #endregion Delete, DeleteAsync
 
         #region Post, PostAsync
-        
+
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         [NotNull]
