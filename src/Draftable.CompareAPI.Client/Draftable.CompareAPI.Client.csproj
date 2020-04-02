@@ -1,26 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!--
+          NuGet pack and restore as MSBuild targets
+          https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets
+    -->
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <PackageId>Draftable.CompareAPI.Client</PackageId>
     <Authors>Draftable</Authors>
+    <!-- Not used by NuGet but added by Visual Studio -->
     <Company>Draftable</Company>
+    <!-- Not used by NuGet but added by Visual Studio -->
     <Product>Draftable Compare API - Client Library</Product>
+    <!-- NuGet expects Title but Visual Studio sets Product -->
+    <Title>$(Product)</Title>
     <Description>Client library for the Draftable document comparison API</Description>
     <Copyright>Copyright © Draftable</Copyright>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/draftable/compare-api-net-client</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
-    <RepositoryUrl>https://github.com/draftable/compare-api-net-client.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <!-- Deprecated but included for compatibility -->
+    <PackageIconUrl>https://raw.githubusercontent.com/draftable/compare-api-net-client/stable/nuget-icon.png</PackageIconUrl>
     <PackageTags>draftable api compare comparison comparisons pdf word document documents doc docx powerpoint presentation presentations ppt pptx</PackageTags>
     <PackageReleaseNotes>https://github.com/draftable/compare-api-net-client/blob/stable/CHANGELOG.md</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/draftable/compare-api-net-client.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryBranch>stable</RepositoryBranch>
+    <DevelopmentDependency>false</DevelopmentDependency>
+    <!-- Include symbol files in the package -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Resources\icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="Resources\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
