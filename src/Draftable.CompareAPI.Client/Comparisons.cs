@@ -6,12 +6,14 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Draftable.CompareAPI.Client.Internal;
+
 using JetBrains.Annotations;
+
 using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming

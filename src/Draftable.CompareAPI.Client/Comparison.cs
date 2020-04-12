@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Runtime.Serialization;
+
 using Draftable.CompareAPI.Client.Internal;
+
 using JetBrains.Annotations;
+
 using Newtonsoft.Json;
 
 
