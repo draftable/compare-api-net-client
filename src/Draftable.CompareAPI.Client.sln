@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FA6EFC92-0C15-41AC-9056-3475D4A0D7E6}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,11 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.NetFramework", "Sample.NetFramework\Sample.NetFramework.csproj", "{609687DC-7029-4C34-9879-A6951C2D6092}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Draftable.CompareAPI.Client", "Draftable.CompareAPI.Client\Draftable.CompareAPI.Client.csproj", "{2D13F0BC-70DF-45E2-AE34-8063993C4795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Draftable.CompareAPI.Client", "Draftable.CompareAPI.Client\Draftable.CompareAPI.Client.csproj", "{2D13F0BC-70DF-45E2-AE34-8063993C4795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Core", "Sample.Core\Sample.Core.csproj", "{7301D8E3-4BA8-4BCF-95FE-2F0CB63BC228}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Core", "Sample.Core\Sample.Core.csproj", "{7301D8E3-4BA8-4BCF-95FE-2F0CB63BC228}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.NetCore", "Sample.NetCore\Sample.NetCore.csproj", "{925906A3-351D-4D48-8B37-11F1477F6722}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.NetCore", "Sample.NetCore\Sample.NetCore.csproj", "{925906A3-351D-4D48-8B37-11F1477F6722}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,5 +41,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {914C2241-077F-470A-8D00-398F88F10931}
 	EndGlobalSection
 EndGlobal
