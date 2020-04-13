@@ -30,3 +30,8 @@ insert_final_newline = false
 [*.*proj]
 indent_size = 2
 insert_final_newline = false
+
+# VS solutions
+[*.sln]
+charset = utf-8-bom
+indent_style = tab
