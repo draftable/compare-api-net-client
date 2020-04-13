@@ -2,11 +2,30 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+        <Authors>Draftable</Authors>
+        <Company>Draftable</Company>
+        <Copyright>Copyright © Draftable</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Description>Client library for the Draftable document comparison API</Description>
+        <Product>Draftable Compare API - Client Library</Product>
+        <PackageProjectUrl>https://github.com/draftable/compare-api-net-client</PackageProjectUrl>
+        <PackageReleaseNotes>https://github.com/draftable/compare-api-net-client/blob/stable/CHANGELOG.md</PackageReleaseNotes>
+        <RepositoryUrl>https://github.com/draftable/compare-api-net-client.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageTags>draftable api compare comparison comparisons pdf word document documents doc docx powerpoint presentation presentations ppt pptx</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
       <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Resources\icon.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>

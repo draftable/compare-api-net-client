@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Tests")]
+[assembly: AssemblyTitle("Sample.NetFramework")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Tests")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Draftable")]
+[assembly: AssemblyProduct("Draftable Compare API - Client Library")]
+[assembly: AssemblyCopyright("Copyright © Draftable")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

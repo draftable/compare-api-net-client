@@ -74,10 +74,10 @@
   <!-- Here we hack in App.LocalSettings.config -->
   <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Web\Microsoft.Web.Publishing.Tasks.dll" />
   <Target Name="AfterCompile">
-    <!-- (1) Transform App.config with App.LocalSettings.config if exists. Result goes in IntermediateOutputPath. -->
+    <!-- (1) Transform App.config with App.LocalSettings.config if it exists. Result goes in IntermediateOutputPath. -->
     <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.LocalSettings.config" Condition="Exists('App.LocalSettings.config')" />
     <Copy SourceFiles="App.config" DestinationFiles="$(IntermediateOutputPath)$(TargetFileName).config" Condition="!Exists('App.LocalSettings.config')" />
-    <!-- (2) Remove App.config from future build and add the intermediate file. -->
+    <!-- (2) Remove App.config from future builds and add the intermediate file. -->
     <ItemGroup>
         <AppConfigWithTargetPath Remove="App.config" />
         <AppConfigWithTargetPath Include="$(IntermediateOutputPath)$(TargetFileName).config">
