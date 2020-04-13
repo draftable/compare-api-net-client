@@ -34,9 +34,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -70,7 +72,6 @@
     </When>
   </Choose>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-
   <!-- Here we hack in App.LocalSettings.config -->
   <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Web\Microsoft.Web.Publishing.Tasks.dll" />
   <Target Name="AfterCompile">
@@ -79,11 +80,10 @@
     <Copy SourceFiles="App.config" DestinationFiles="$(IntermediateOutputPath)$(TargetFileName).config" Condition="!Exists('App.LocalSettings.config')" />
     <!-- (2) Remove App.config from future builds and add the intermediate file. -->
     <ItemGroup>
-        <AppConfigWithTargetPath Remove="App.config" />
-        <AppConfigWithTargetPath Include="$(IntermediateOutputPath)$(TargetFileName).config">
-            <TargetPath>$(TargetFileName).config</TargetPath>
-        </AppConfigWithTargetPath>
+      <AppConfigWithTargetPath Remove="App.config" />
+      <AppConfigWithTargetPath Include="$(IntermediateOutputPath)$(TargetFileName).config">
+        <TargetPath>$(TargetFileName).config</TargetPath>
+      </AppConfigWithTargetPath>
     </ItemGroup>
   </Target>
-
 </Project>
