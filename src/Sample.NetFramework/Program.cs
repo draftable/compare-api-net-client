@@ -2,7 +2,7 @@
 
 using Sample.Core;
 
-namespace Tests
+namespace Sample.NetFramework
 {
     internal static class Program
     {
