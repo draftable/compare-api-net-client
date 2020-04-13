@@ -1,16 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
-        <Authors>Draftable</Authors>
-        <Company>Draftable</Company>
-        <Product>Draftable Compare API - Client Library</Product>
-        <Copyright>Copyright © Draftable</Copyright>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Authors>Draftable</Authors>
+    <Company>Draftable</Company>
+    <Product>Draftable Compare API - Client Library</Product>
+    <Copyright>Copyright © Draftable</Copyright>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Sample.Core\Sample.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sample.Core\Sample.Core.csproj" />
+  </ItemGroup>
 
 </Project>
