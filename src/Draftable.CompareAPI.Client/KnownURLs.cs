@@ -1,4 +1,4 @@
-﻿namespace Draftable.CompareAPI.Client
+namespace Draftable.CompareAPI.Client
 {
     public class KnownURLs
     {
