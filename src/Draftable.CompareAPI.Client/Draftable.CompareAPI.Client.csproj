@@ -23,8 +23,8 @@
     <!-- Deprecated but included for compatibility -->
     <PackageIconUrl>https://raw.githubusercontent.com/draftable/compare-api-net-client/stable/nuget-icon.png</PackageIconUrl>
     <PackageTags>draftable api compare comparison comparisons pdf word document documents doc docx powerpoint presentation presentations ppt pptx</PackageTags>
-    <PackageReleaseNotes>https://github.com/draftable/compare-api-net-client/blob/stable/CHANGELOG.md</PackageReleaseNotes>
-    <RepositoryUrl>https://github.com/draftable/compare-api-net-client.git</RepositoryUrl>
+    <PackageReleaseNotes>https://github.com/draftable/compare-api-net-client/blob/stable/README.md</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/draftable/compare-api-net-client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryBranch>stable</RepositoryBranch>
     <DevelopmentDependency>false</DevelopmentDependency>
