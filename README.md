@@ -1,6 +1,10 @@
 Draftable Compare API - .NET Client Library
 ===========================================
 
+[![nuget ver](https://img.shields.io/nuget/v/Draftable.CompareAPI.Client)](https://www.nuget.org/packages/Draftable.CompareAPI.Client)
+[![nuget dlt](https://img.shields.io/nuget/dt/Draftable.CompareAPI.Client)](https://www.nuget.org/packages/Draftable.CompareAPI.Client)
+[![license](https://img.shields.io/github/license/draftable/compare-api-net-client)](https://choosealicense.com/licenses/mit/)
+
 A thin .NET client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
 The documentation and subsequent examples are provided for C#, however, any CLR-based language is supported (e.g. F#, PowerShell, VB.NET).
