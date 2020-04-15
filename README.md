@@ -1,308 +1,305 @@
-# Draftable Compare API - .NET Client Library
+Draftable Compare API - .NET Client Library
+===========================================
 
-This is a thin .NET client for Draftable's [document comparison API](https://draftable.com/comparison-api).
-It wraps the available endpoints, and handles authentication and signing for you.
-The library is [available on NuGet](https://www.nuget.org/packages/Draftable.CompareAPI.Client/) as `DraftableCompareAPI.Client`.
+A thin .NET client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
-The examples in this README are all in C#, but any CLR-based language (e.g. F#, VB.NET) is supported.
+The documentation and subsequent examples are provided for C#, however, any CLR-based language is supported (e.g. F#, PowerShell, VB.NET).
 
-See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
+See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other reference material.
 
-### Getting started
+Requirements
+------------
 
-- Sign up for free at [api.draftable.com](https://api.draftable.com) to get your credentials.
+- Operating system: Any maintained Linux, macOS, or Windows release
+- .NET runtime: .NET Framework 4.5.2+ (Windows only) or .NET Core 2.1+
 
-- Install the [`Draftable.CompareAPI.Client` NuGet package](https://www.nuget.org/packages/Draftable.CompareAPI.Client/). This will add a reference to `Draftable.CompareAPI.Client`.
+Getting started
+---------------
 
-- Start creating comparisons:
-    ```
-    using (var comparisons = new Comparisons("your account id", "your auth token")) {
-        var comparison = comparisons.Create(
-            Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
-            Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf")
-        );
+- Create a free [API account](https://api.draftable.com)
+- Retrieve your [credentials](https://api.draftable.com/account/credentials)
+- Add the [Draftable.CompareAPI.Client](https://www.nuget.org/packages/Draftable.CompareAPI.Client) library
+- Start creating comparisons
 
-        var viewerURL = comparisons.SignedViewerURL(comparison.Identifier, validFor: TimeSpan.FromMinutes(30));
+```csharp
+using (var comparisons = new Comparisons("<yourAccountId>", "<yourAuthToken>")) {
+    var comparison = comparisons.Create(
+        Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
+        Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf")
+    );
+    Console.WriteLine($"Comparison created: {comparison}");
 
-        Console.WriteLine("Comparison created:");
-        Console.WriteLine(comparison);
-        Console.WriteLine();
-        Console.WriteLine($"Viewer URL (expires in 30 min): {viewerURL}");
-    }
-    ```
+    // Generate a signed viewer URL to access the private comparison. The expiry
+    // time defaults to 30 minutes if the ValidFor parameter is not provided.
+    var viewerURL = comparisons.SignedViewerURL(comparison.Identifier);
+    Console.WriteLine($"Viewer URL (expires in 30 mins): {viewerURL}");
+}
+```
 
------
-
-# Client API
-
-### Dependencies and supported .NET frameworks
-The client depends on the `Newtonsoft.Json` NuGet package for serialization.
-
-The client is built against version 4.5.2 of the .NET framework, so framework versions 4.5.2 and higher are supported.
+API reference
+-------------
 
 ### Design notes
 
-###### Synchronous and asynchronous requests
+#### Exceptions and error handling
 
-All requests can be made synchronously or asynchronously (using the methods suffixed with `Async`). 
-All asynchronous methods return `Task`s that, when awaited, will complete succesfully or throw an exception, just like their synchronous counterparts.
+Method calls immediately validate parameters. The following exceptions are thrown on validation failure:
 
-###### Errors and error handling
+- `ArgumentNullException`  
+  A required non-null parameter was not provided.
+- `ArgumentOutOfRangeException`  
+  A required parameter contained invalid data.
 
-The API is designed such that _requests should always succeed_ and _comparisons should always succeed_ in production. This means:
-- Exceptions when making requests will only occur upon network failure, or when you provide invalid credentials or data.
-- Comparisons will only fail when the files are unreadable, or exceed your account's size limits.
+Disposing the `Comparisons` client results in subsequent requests throwing `ObjectDisposedException`. Any in-progress requests will be cancelled and throw `OperationCanceledException`.
 
-When making method calls, parameters are immediately validated, and `ArgumentNullException`s and `ArgumentOutOfRangeException`s will be thrown
-if you provide invalid parameters. Otherwise, all possible exceptions are documented for every method in the client library.
+#### Synchronous and asynchronous requests
 
-If you `Dispose()` the `Comparisons` client, further requests will throw an `ObjectDisposedException`, and any requests in progress will be canceled,
-throwing an `OperationCanceledException`.
+- Requests may be made synchronously, or asynchronously using the methods suffixed with `Async`.
+- Asynchronous methods return a `Task`, which when awaited, will complete succesfully or throw an exception.
 
-###### Thread safety
+#### Thread safety
 
-The API client class, `Comparisons`, is completely thread-safe.
+The API client class, `Comparisons`, is thread-safe.
 
 ### Initializing the client
 
-The library provides a namespace `Draftable.CompareAPI` with two classes, `Comparisons` and `Comparison`.
+The package provides a namespace, `Draftable.CompareAPI`, with which a `Comparisons` instance can be created for your API account.
 
-To construct an API client, use `new Comparisons(string accountId, string authToken)`.
-The `Comparisons` instance lets you manage your account's comparisons (creating new comparisons, and getting/deleting existing comparisons).
-Instances of `Comparison` are returned by API methods, and provide metadata for a given comparison.
+`Comparisons` provides methods to manage the comparisons for your API account and return individual `Comparison` objects.
 
-Note 1: the simplest `Comparisons` constructor assumes that you are going to communicate with Draftable Cloud API (Cloud API URLs start with `https://api.draftable.com/v1`). If you work with non-cloud Draftable instance (eg. a local self-hosted one), you need to use `Comparisons` constructor with `baseURL` parameter properly specified. This value depends on your local installation and if needed, ask your office Administrator for its value.
+Creating a `Comparisons` instance differs slightly based on the API endpoint being used:
 
-Note 2: If you need to customize how HTTP requests are handled (e.g. to use a proxy server), you can use a constructor overload that allows you to configure
-the underlying `System.Net.Http.HttpClientHandler` used internally.
+```csharp
+using Draftable.CompareAPI;
 
-Note 3: When communicating with a local Self-Hosted deployment, you may hit SSL errors. You can easily bypass them running: 
+// Draftable API (default endpoint)
+var comparisons = new Comparisons(
+    "<yourAccountId>",  // Replace with your API credentials from:
+    "<yourAuthToken>"   // https://api.draftable.com/account/credentials
+);
+
+// Draftable API regional endpoint or Self-hosted
+var comparisons = new Comparisons(
+    "<yourAccountId>",  // Replace with your API credentials from the regional
+    "<yourAuthToken>",  // Draftable API endpoint or your Self-hosted container
+    'https://draftable.example.com/api/v1'  // Replace with the endpoint URL
+);
 ```
-ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
-```
-This is an easy way to ignore these errors process-wide. Be careful using that, you should never do this in prod, instead you should properly install SSL certificate in the client machine.
 
-`Comparisons` is disposable. Calling `.Dispose()` will close any underlying connections and otherwise clean up the HTTP communication layer.
+The `Comparisons` instance can be disposed by calling `Dispose()`.
 
-So, we'll assume you set things up as follows:
+For API Self-hosted you may need to [suppress TLS certificate validation](#self-signed-certificates) if the server is using a self-signed certificate (the default).
 
-    using Draftable.CompareAPI;
-    ...
-    var comparisons = new Comparisons(<your account ID>, <your auth token>);
+### Retrieving comparisons
 
-### Getting comparisons
+- `GetAll()`  
+  Returns a `List<Comparison>` of all your comparisons, ordered from newest to oldest. This is potentially an expensive operation.
+- `Get(string identifier)`  
+  Returns the specified `Comparison` or raises a `NotFoundException` exception if the specified comparison identifier does not exist.
 
-`Comparisons` provides `.GetAll()` and `.Get(string identifier)`.
-- `.GetAll()` returns a `List<Comparison>` giving metadata for _all your comparisons_, ordered from newest to oldest. This is a potentially expensive operation.
-- `.Get(string identifier)` returns a single `Comparison` object, or raises `Comparisons.NotFoundException` if there isn't a comparison with that identifier.
+`Comparison` objects have the following properties:
 
-###### Comparison objects
+- `Identifier: string`  
+  The unique identifier of the comparison
+- `Left: Comparison.Side` / `Right: Comparison.Side`  
+  Information about each side of the comparison
+  - `FileType: string`  
+    The file extension
+  - `SourceURL: string` _(optional)_  
+    The URL for the file if the original request was specified by URL, otherwise `null`
+  - `DisplayName: string` _(optional)_  
+    The display name for the file if given in the original request, otherwise `null`
+- `IsPublic: bool`  
+  Indicates if the comparison is public
+- `CreationTime: DateTime`  
+  Time in UTC when the comparison was created
+- `ExpiryTime: DateTime` _(optional)_  
+  The expiry time if the comparison is set to expire, otherwise `null`
+- `Ready: bool`  
+  Indicates if the comparison is ready to display
 
-`Comparison` objects have the following read-only properties:
-- `Identifier`: a string giving the identifier.
-- `Left`, `Right`: `Comparison.Side` objects giving information about each side, with properties:
-    - `FileType`: the file extension.
-    - `SourceURL`  _(optional)_: if the file was specified as a URL, this will be a string with the URL. Otherwise, `null`. 
-    - `DisplayName` _(optional)_: the display name, if one was given. Otherwise, `null`.
-- `IsPublic`: a boolean giving whether the comparison is public, or requires authentication to view.
-- `CreationTime`: a `DateTime` giving when the comparison was created.
-- `ExpiryTime` _(optional)_: if the comparison will expire, an `DateTime` giving the expiry time. Otherwise, `null` (indicating no expiry).
-- `Ready`: boolean indicating whether the comparison is ready for display.
+If a `Comparison` is _ready_ (i.e. it has been processed) it has the following additional properties:
 
-If a `Comparison` is `Ready` (i.e. it has been processed and is ready for display), it the following additional properties will be non-null:
-- `ReadyTime`: a `DateTime` giving the time the comparison became ready.
-- `Failed`: a boolean indicating whether the comparison succeeded or failed.
-- `ErrorMessage` _(only present if `Failed`)_: a string providing the developer with the reason the comparison failed.
+- `ReadyTime: DateTime`  
+  Time in UTC the comparison became ready
+- `Failed: bool`  
+  Indicates if comparison processing failed
+- `ErrorMessage: string` _(only present if `Failed`)_  
+  Reason processing of the comparison failed
 
-###### Example usage
+#### Example usage
 
-    string identifier = "<identifier>";
-    
-    try {
-        var comparison = comparisons.Get(identifier);
-        Debug.Assert(comparison.Identifier == identifier);
+```csharp
+string identifier = "<identifier>";
 
+try {
+    var comparison = comparisons.Get(identifier);
+
+    Console.WriteLine(
+        "Comparison '{0}' ({1}) is {2}.",
+        identifier,
+        comparison.IsPublic ? "public" : "private",
+        comparison.Ready ? "ready" : "not ready"
+    );
+
+    if (comparison.Ready) {
         Console.WriteLine(
-            "Comparison '{0}' ({1}) is {2}.",
-            identifier,
-            comparison.IsPublic ? "public" : "private",
-            comparison.Ready ? "ready" : "not ready"
+            "The comparison took {0} seconds.",
+            (comparison.ReadyTime.Value - comparison.CreationTime).TotalSeconds
         );
 
-        if (comparison.Ready) {
+        if (comparison.Failed.Value) {
             Console.WriteLine(
-                "The comparison took {0} seconds.",
-                (comparison.ReadyTime.Value - comparison.CreationTime).TotalSeconds
+                "The comparison failed with error: {0}",
+                comparison.ErrorMessage
             );
-
-            if (comparison.Failed.Value) {
-                Console.WriteLine("The comparison failed. Error message: {0}", comparison.ErrorMessage);
-            }
         }
-
-    } catch (Comparisons.NotFoundException) {
-        Console.WriteLine("Comparison '{0}' does not exist.", identifier);
     }
-
+} catch (Comparisons.NotFoundException) {
+    Console.WriteLine("Comparison '{0}' does not exist.", identifier);
+}
+```
 
 ### Deleting comparisons
 
-`Comparisons` provides `.Delete(string identifier)`, which attempts to delete the comparison with that identifier.
+- `Delete(string identifier)`  
+  Returns nothing on successfully deleting the specified comparison or raises a `NotFoundException` exception if no such comparison exists.
 
-It has no return value, and raises `Comparisons.NotFoundException` if there isn't a comparison with that identifier. 
+#### Example usage
 
-###### Example usage
+```csharp
+var allComparisons = comparisons.GetAll();
+var oldestComparisons = allComparisons.OrderBy(comparison => comparison.CreationTime).Take(10).ToList();
+Console.WriteLine("Deleting oldest {0} comparisons ...", oldestComparisons.Count);
 
-    var allComparisons = comparisons.GetAll();
-    var oldestComparisons = allComparisons.OrderBy(comparison => comparison.CreationTime).Take(10).ToList();
-
-    Console.WriteLine("Deleting oldest {0} comparisons...", oldestComparisons.Count);
-
-    foreach (var comparison in oldestComparisons) {
-        comparisons.Delete(comparison.Identifier);
-        Console.WriteLine("Deleted comparison '{0}'.", comparison.Identifier);
-    }
+foreach (var comparison in oldestComparisons) {
+    comparisons.Delete(comparison.Identifier);
+    Console.WriteLine("Comparison '{0}' deleted.", comparison.Identifier);
+}
+```
 
 ### Creating comparisons
 
-`Comparisons` provides `.Create(left, right, [identifier], [isPublic], [expires])`, which returns
-a `Comparison` object representing the newly created comparison.
+- `Create(Comparisons.Side left, Comparisons.Side right, string identifier = null, bool isPublic = false, TimeSpan expires = null)`  
+  Returns a `Comparison` representing the newly created comparison.
 
-###### Creation options
+`Create` accepts the following arguments:
 
-`.Create(...)` accepts the following arguments:
+- `left` / `right`  
+  Describes the left and right files (see following section)
+- `identifier` _(optional)_  
+  Identifier to use for the comparison:
+  - If specified, the identifier must be unique (i.e. not already be in use)
+  - If unspecified or `null`, the API will automatically generate a unique identifier
+- `isPublic` _(optional)_  
+  Specifies the comparison visibility:
+  - If `false` or unspecified authentication is required to view the comparison
+  - If `true` the comparison can be accessed by anyone with knowledge of the URL
+- `expires` _(optional)_  
+  Time at which the comparison will be deleted:
+  - If specified, the provided expiry time must be UTC and in the future
+  - If unspecified or `null`, the comparison will never expire (but may be explicitly deleted)
 
-- `left`, `right`: `Comparisons.Side` objects describing the left and right files. These are described below.
-- `identifier` _(optional)_: the identifier to use for the comparison.
-    - If specified, the identifier can't clash with an existing comparison. (If so, a `Comparisons.BadRequestException` is thrown.)
-    - If left unspecified, the API will automatically generate one for you.
-- `isPublic` _(optional)_: whether the comparison is publicly accessible.
-    - Defaults to `false`. If `true`, then the comparison viewer can be accessed by anyone, without authentication.
-    - See the full API documentation for details.
-- `expires` _(optional)_: an optional `TimeSpan` specifying when the comparison will be automatically deleted.
-    - If given, the `TimeSpan` must be positive.
-    - Defaults to `null`, meaning the comparison will never expire.
+The following exceptions may be raised in addition to [parameter validation exceptions](#exceptions-and-error-handling):
 
-To specify `left` and `right`, create `Comparisons.Side` instances using one of the static constructors.
-The full set of overloads are documented in the xml docs, but here are the main ones:
+- `BadRequestException`  
+  The request could not be processed (e.g. `identifier` already in use)
 
-- `Comparisons.Side.FromURL(sourceURL, fileType, [displayName])`
-    - Specifies a file via a URL. You must give a fully qualified URL from which Draftable can download the file.
-    - `fileType` is required, given as the file extension
-    - `displayName` is an optional name for the file, to be shown in the comparison
-    
-- `Comparisons.Side.FromFile(fileStream, fileType, [displayName])`
-    - Specifies a file to be uploaded in the request. You can provide the file as a stream, byte array, or via a file path.
-    - `fileType` and `displayName` are as before.
+#### Creating comparison sides
 
-###### Supported file types
+The two most common static constructors for creating `Comparisons.Side` objects are:
 
-The following file types are supported:
-- PDF: `pdf`
-- Word: `docx`, `docm`, `doc`, `rtf`
-- PowerPoint: `pptx`, `pptm`, `ppt`
+- `Comparisons.Side.FromFile(Stream fileStream, string fileType, string displayName = null)`  
+  Returns a `Comparisons.Side` for a locally accessible file.
+- `Comparisons.Side.FromURL(string sourceURL, string fileType, string displayName = null)`  
+  Returns a `Comparisons.Side` for a remotely accessible file referenced by URL.
 
-###### Exceptions
+These constructors accept the following arguments:
 
-If you try to create a `Comparisons.Side` with an invalid `fileType` or malformed `url`, an `ArgumentOutOfRangeException` will be immediately thrown.
+- `fileStream` _(`FromFile` only)_  
+  A file object to be read and uploaded
+  - The file must be opened for reading in _binary mode_
+- `sourceURL` _(`FromURL` only)_  
+  The URL from which the server will download the file
+- `fileType`  
+  The type of file being submitted:
+  - PDF: `pdf`
+  - Word: `docx`, `docm`, `doc`, `rtf`
+  - PowerPoint: `pptx`, `pptm`, `ppt`
+- `displayName` _(optional)_  
+  The name of the file shown in the comparison viewer
 
-Exceptions are raised by `.Create(...)` if a parameter is invalid (e.g. `expires` is set to a time in the past).
-The method will either immediately throw an `ArgumentOutOfRangeException`, or a `Comparisons.BadRequestException` will be thrown after communication with the API.
-- Most parameters will be validated client-side by the library, in which case an `ArgumentOutOfRangeException` is thrown.
-- If you provide an invalid parameter that isn't validated client-side (e.g. an `identifier` that is already in use by another comparison) then the POST request will fail and a `Comparisons.BadRequestException` will be thrown.
+#### Example usage
 
-###### Example usage
-
-    var comparison = comparisons.Create(
-        Comparisons.Side.FromURL("https://domain.com/path/to/left.pdf", "pdf"),
-        Comparisons.Side.FromFile("path/to/right/file.pdf"),
-        // identifier: not specified, so Draftable will generate one
-        identifier: null,
-        // isPublic: false, so that the comparison is private
-        isPublic: false,
-        // expires: 30 minutes in the future, so the comparison will be automatically deleted then
-        expires: TimeSpan.FromMinutes(30)
-    );
-
-    Console.WriteLine("Created comparison:");
-    Console.WriteLine(comparison);
-
-    // This generates a signed viewer URL that can be used to access the private comparison for the next 10 minutes.
-    var viewerURL = comparisons.SignedViewerURL(
-        // identifier: The identifier of the comparison
-        identifier: comparison.identifier,
-        // validFor: The amount of time before the link expires
-        validFor: TimeSpan.FromMinutes(10),
-        // wait: Whether the viewer should wait for a comparison with the given identifier to exist.
-        //       (This is simply `false` for normal usage.)
-        wait: false
-    );
-
-    Console.WriteLine("Viewer URL (expires in 10 min): {0}", viewerURL);
-
-
+```csharp
+var comparison = comparisons.Create(
+    Comparisons.Side.FromURL("https://domain.com/path/to/left.pdf", "pdf"),
+    Comparisons.Side.FromFile("path/to/right/file.docx", "docx"),
+    // Expire this comparison in 2 hours (default is no expiry)
+    expires: TimeSpan.FromHours(2)
+);
+Console.WriteLine($"Created comparison: {comparison}");
+```
 
 ### Displaying comparisons
 
-Comparisons are displayed using a _viewer URL_. See the section on displaying comparisons in the [API documentation](https://api.draftable.com) for details.
+- `PublicViewerURL(string identifier, bool wait = false)`  
+  Generates a public viewer URL for the specified comparison
+- `SignedViewerURL(string identifier, TimeSpan validFor = null, bool wait = false)`  
+  Generates a signed viewer URL for the specified comparison
 
-Viewer URLs are generated with the following methods:
+Both methods use the following common parameters:
 
-- `comparisons.PublicViewerURL(string identifier, bool wait = false)`
-    - Viewer URL for a public comparison with the given `identifier`.
-    - `wait` is `false` by default, meaning the viewer will 404 and show an error if no such comparison exists.
-    - If `wait` is `true`, the viewer will wait for a comparison with the given `identifier` to exist (potentially displaying a loading animation forever).
+- `identifier`  
+  Identifier of the comparison for which to generate a _viewer URL_
+- `wait` _(optional)_  
+  Specifies the behaviour of the viewer if the provided comparison does not exist
+  - If `false` or unspecified, the viewer will show an error if the `identifier` does not exist
+  - If `true`, the viewer will wait for a comparison with the provided `identifier` to exist  
+    Note this will result in a perpetual loading animation if the `identifier` is never created
 
-- `comparisons.SignedViewerURL(String identifier, [TimeSpan validFor], [boolean wait])`
-    - Gets a signed viewer URL for a comparison with the given `identifier`. (The signature is an HMAC based on your credentials.)
-    - `validFor` gives when the URL will expire.
-        - If `validFor` isn't specified, the URL defaults to expiring 30 minutes in the future (more than enough time to load the page). 
-    - Again, if `wait` is `true`, the viewer will wait for a comparison with the given `identifier` to exist.
+The `SignedViewerURL` method also supports the following parameters:
 
+- `validFor` _(optional)_  
+  Time at which the URL will expire (no longer load)
+  - If specified, the provided expiry time must be UTC and in the future
+  - If unspecified, the URL will be generated with the default 30 minute expiry
 
-###### Example usage
+See the displaying comparisons section in the [API documentation](https://api.draftable.com) for additional details.
 
-In this example, we'll start creating a comparison in the background, but immediately direct our user to a viewer.
-The comparison viewer will display a loading animation, waiting for the comparison to be created and processed.
+#### Example usage
 
-    // This generates a unique identifier we can use.
-    var identifier = Comparisons.GenerateIdentifier();
+```csharp
+var identifier = '<identifier>';
 
-    var createComparisonTask = comparisons.CreateAsync(
-        Side.FromURL("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
-        Side.FromURL("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf"),
-        // identifier: specify the identifier we just generated
-        identifier: identifier
-    );
-
-    // At some point, we will have created the comparison.
-    // (The operation could take some time if we're uploading files.)
-    // In the mean time, we can immediately give the user a viewer URL, using `wait=true`:
-    string viewerURL = comparisons.SignedViewerURL(identifier, TimeSpan.FromMinutes(30), wait: true);
-
-    // This URL is valid for 30 minutes, and will show a loading screen until the comparison is ready.
-    Console.WriteLine("Comparison is being created. View it here: {0}", viewerURL);
-
-    // For the purposes of this example, we'll just block until the request finishes.
-    var comparison = createComparisonTask.ConfigureAwait(false).GetAwaiter().GetResult();
-
-    // More generally, the async/await pattern is recommended:
-    // var comparison = await createComparisonTask;
-
+// Retrieve a signed viewer URL which is valid for 1 hour. The viewer will wait
+// for the comparison to exist in the event processing has not yet completed.
+string viewerUrl = comparisons.SignedViewerURL(identifier, TimeSpan.FromHours(1), wait: true);
+Console.WriteLine($"Viewer URL (expires in 1 hour): {viewerUrl}");
+```
 
 ### Utility methods
 
-- `Comparisons.GenerateIdentifier()` generates a random unique identifier for you to use.
+- `GenerateIdentifier()`
+  Generates a random unique comparison identifier
 
+Other information
+-----------------
 
-### Proxying and advanced configuration
+### Network & proxy configuration
 
-By default, the client library respects `<system.net>...</system.net>` settings in your app's configuration file, as well as any system-wide internet settings (e.g. proxy server) set in `Internet Options`.
+The library respects any [Network Settings](https://docs.microsoft.com/en-us/dotnet/framework/configure-apps/file-schema/network/system-net-element-network-settings) defined in your application's configuration file, as well as any operating system proxy server configuration (e.g. as configured in _Internet Settings_).
 
-If you need to customize request settings, you can add settings to application config (e.g. see [this MSDN page](https://docs.microsoft.com/en-us/dotnet/framework/network-programming/proxy-configuration) for proxy configuration). Alternatively, you can use a constructor for `Comparisons` that takes in a configuration callback.
+In addition, the `Comparisons` class provides a constructor which allows for customisation of the `Net.Http.HttpClientHandler` instance used internally via an `Action<HttpClientHandler>` callback.
 
-The configuration callback is an `Action<HttpClientHandler>` that can perform any necessary configuration of the client library's underlying `HttpClientHandler`, including setting proxy settings, timeouts, or other request parameters.
+### Self-signed certificates
 
------
+If connecting to an API Self-hosted endpoint which is using a self-signed certificate (the default) you will need to suppress certificate validation. The recommended approach is to import the self-signed certificate into the certificate store of your operating system, which will ensure the .NET runtime trusts the certificate.
 
-That's it! Please report issues you encounter, and we'll work quickly to resolve them. Contact us at [support@draftable.com](mailto://support@draftable.com) if you need assistance.
+Alternatively, you can suppress certificate validation by providing a server certificate validation callback to the `ServicePointManager` instance. The simplest implementation is to disable all certificate validation for all TLS connections in the process. For example:
+
+```csharp
+ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+```
+
+Disabling certificate validation in production environments is strongly discouraged as it significantly lowers security. We only recommend using this approach in development environments if configuring a CA signed certificate for API Self-hosted is not possible.
