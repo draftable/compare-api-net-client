@@ -73,7 +73,7 @@ Disposing the `Comparisons` client results in subsequent requests throwing `Obje
 #### Synchronous and asynchronous requests
 
 - Requests may be made synchronously, or asynchronously using the methods suffixed with `Async`.
-- Asynchronous methods return a `Task`, which when awaited, will complete succesfully or throw an exception.
+- Asynchronous methods return a `Task`, which when awaited, will complete successfully or throw an exception.
 
 #### Thread safety
 
