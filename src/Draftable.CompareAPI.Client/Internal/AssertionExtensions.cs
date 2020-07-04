@@ -12,9 +12,9 @@ namespace Draftable.CompareAPI.Client.Internal
         public static T AssertNotNull<T>([CanBeNull] this T value)
             where T : class
         {
-            #if DEBUG
+#if DEBUG
             Debug.Assert(value != null, "Unexpected null value encountered.");
-            #endif
+#endif
             return value ?? throw new NullReferenceException("Unexpected null value encountered.");
         }
     }

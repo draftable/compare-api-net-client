@@ -63,7 +63,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         public Comparisons([NotNull] string accountId, [NotNull] string authToken)
             // ReSharper disable once ExceptionNotDocumented
-            : this(accountId, authToken, KnownURLs.CloudBaseURL, httpClientHandlerConfigurator: null) {}
+            : this(accountId, authToken, KnownURLs.CloudBaseURL, httpClientHandlerConfigurator: null) { }
 
         /// <summary>
         /// Construct a new <see cref="Comparisons"/> API client for the given credentials, connecting to Draftable instance pointed to by the base URL.
@@ -77,7 +77,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         public Comparisons([NotNull] string accountId, [NotNull] string authToken, [NotNull] string baseURL)
             // ReSharper disable once ExceptionNotDocumented
-            : this(accountId, authToken, baseURL, httpClientHandlerConfigurator: null) {}
+            : this(accountId, authToken, baseURL, httpClientHandlerConfigurator: null) { }
 
         /// <summary>
         /// Construct a new <see cref="Comparisons"/> API client for the given credentials,  connecting to Draftable instance pointed to by the base URL, with custom configuration for the underlying <see cref="HttpClientHandler"/>.
@@ -111,9 +111,9 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         public abstract class RequestExceptionBase : Exception
         {
-            protected RequestExceptionBase([NotNull] string message, [CanBeNull] Exception innerException) : base(message, innerException) {}
+            protected RequestExceptionBase([NotNull] string message, [CanBeNull] Exception innerException) : base(message, innerException) { }
 
-            protected RequestExceptionBase([NotNull] string message) : base(message) {}
+            protected RequestExceptionBase([NotNull] string message) : base(message) { }
         }
 
         /// <summary>
@@ -153,15 +153,21 @@ namespace Draftable.CompareAPI.Client
             [Pure, NotNull]
             private static string MessageFor([NotNull] RestApiClient.UnexpectedResponseException ex)
             {
-                if (!string.IsNullOrEmpty(ex.ResponseContent)) {
+                if (!string.IsNullOrEmpty(ex.ResponseContent))
+                {
                     string errorDetails;
-                    try {
+                    try
+                    {
                         errorDetails = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent), Formatting.Indented);
-                    } catch {
+                    }
+                    catch
+                    {
                         errorDetails = ex.ResponseContent;
                     }
                     return $"Bad request - invalid parameters were provided. Details:\n{errorDetails}";
-                } else {
+                }
+                else
+                {
                     return "Bad request - ensure that the parameters are valid.";
                 }
             }
@@ -185,15 +191,21 @@ namespace Draftable.CompareAPI.Client
             [Pure, NotNull]
             private static string MessageFor([NotNull] RestApiClient.UnexpectedResponseException ex)
             {
-                if (!string.IsNullOrEmpty(ex.ResponseContent)) {
+                if (!string.IsNullOrEmpty(ex.ResponseContent))
+                {
                     string errorDetails;
-                    try {
+                    try
+                    {
                         errorDetails = JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent), Formatting.Indented);
-                    } catch {
+                    }
+                    catch
+                    {
                         errorDetails = ex.ResponseContent;
                     }
                     return $"Invalid authorization credentials. Details:\n{errorDetails}";
-                } else {
+                }
+                else
+                {
                     return "Invalid authorization credentials. Please check your account ID and auth token were provided correctly.";
                 }
             }
@@ -252,9 +264,12 @@ namespace Draftable.CompareAPI.Client
         public Comparison Get([NotNull] string identifier)
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
-            try {
+            try
+            {
                 return DeserializeComparison(_client.Get(_urls.Comparison(identifier)));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -285,9 +300,12 @@ namespace Draftable.CompareAPI.Client
         public async Task<Comparison> GetAsync([NotNull] string identifier, CancellationToken cancellationToken)
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
-            try {
+            try
+            {
                 return DeserializeComparison(await _client.GetAsync(_urls.Comparison(identifier), cancellationToken).ConfigureAwait(false));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -304,9 +322,12 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI, Pure, NotNull, ItemNotNull]
         public List<Comparison> GetAll()
         {
-            try {
+            try
+            {
                 return DeserializeAllComparisons(_client.Get(_urls.Comparisons));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -338,9 +359,12 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI, Pure, NotNull, ItemNotNull]
         public async Task<List<Comparison>> GetAllAsync(CancellationToken cancellationToken)
         {
-            try {
+            try
+            {
                 return DeserializeAllComparisons(await _client.GetAsync(_urls.Comparisons, cancellationToken).ConfigureAwait(false));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -363,9 +387,12 @@ namespace Draftable.CompareAPI.Client
         public void Delete([NotNull] string identifier)
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
-            try {
+            try
+            {
                 _client.Delete(_urls.Comparison(identifier));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -400,9 +427,12 @@ namespace Draftable.CompareAPI.Client
         public async Task DeleteAsync([NotNull] string identifier, CancellationToken cancellationToken)
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
-            try {
+            try
+            {
                 await _client.DeleteAsync(_urls.Comparison(identifier), cancellationToken).ConfigureAwait(false);
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -422,7 +452,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         public abstract class Side
         {
-            internal Side() {}
+            internal Side() { }
 
             [NotNull]
             protected abstract IEnumerable<KeyValuePair<string, string>> FormData { get; }
@@ -434,11 +464,13 @@ namespace Draftable.CompareAPI.Client
             [Pure, NotNull]
             internal IEnumerable<KeyValuePair<string, string>> GetFormData([NotNull] string sideName)
             {
-                if (sideName != "left" && sideName != "right") {
+                if (sideName != "left" && sideName != "right")
+                {
                     throw new ArgumentOutOfRangeException(nameof(sideName), sideName, "`sideName` must be one of \"left\" or \"right\"");
                 }
 
-                foreach (var kvp in FormData) {
+                foreach (var kvp in FormData)
+                {
                     yield return new KeyValuePair<string, string>($"{sideName}.{kvp.Key}", kvp.Value);
                 }
             }
@@ -447,11 +479,13 @@ namespace Draftable.CompareAPI.Client
             [Pure, NotNull]
             internal IEnumerable<KeyValuePair<string, Stream>> GetFileContent([NotNull] string sideName)
             {
-                if (sideName != "left" && sideName != "right") {
+                if (sideName != "left" && sideName != "right")
+                {
                     throw new ArgumentOutOfRangeException(nameof(sideName), sideName, "`sideName` must be one of \"left\" or \"right\"");
                 }
 
-                foreach (var kvp in FileContent) {
+                foreach (var kvp in FileContent)
+                {
                     yield return new KeyValuePair<string, Stream>($"{sideName}.{kvp.Key}", kvp.Value);
                 }
             }
@@ -506,7 +540,8 @@ namespace Draftable.CompareAPI.Client
             public static Side FromFile([NotNull] string filePath, [CanBeNull] string displayName = null)
             {
                 var extension = Path.GetExtension(filePath);
-                if (string.IsNullOrEmpty(extension)) {
+                if (string.IsNullOrEmpty(extension))
+                {
                     throw new InvalidOperationException("Could not infer the file extension from the given path. Please provide the extension explicitly.");
                 }
                 return FromFile(filePath, fileType: extension, displayName: displayName);
@@ -564,7 +599,8 @@ namespace Draftable.CompareAPI.Client
                 ValidateFileType(_fileType);
                 _displayName = displayName;
 
-                if (!CheckForHttpOrHttpsURL(_sourceURL)) {
+                if (!CheckForHttpOrHttpsURL(_sourceURL))
+                {
                     throw new ArgumentOutOfRangeException(nameof(sourceURL), sourceURL, "`sourceURL` could not be parsed as an absolute HTTP or HTTPS URL.");
                 }
             }
@@ -598,11 +634,13 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI, Pure, NotNull]
         public Comparison Create([NotNull] Side left, [NotNull] Side right, [CanBeNull] string identifier = null, bool isPublic = false, [CanBeNull] TimeSpan? expires = null)
         {
-            if (identifier != null) {
+            if (identifier != null)
+            {
                 ValidateIdentifier(identifier);
             }
             ValidateExpires(expires);
-            try {
+            try
+            {
                 return DeserializeComparison(_client.Post(
                     _urls.Comparisons,
                     data: new Dictionary<string, string> {
@@ -612,7 +650,9 @@ namespace Draftable.CompareAPI.Client
                     }.Concat(left.GetFormData("left")).Concat(right.GetFormData("right")),
                     files: left.GetFileContent("left").Concat(right.GetFileContent("right"))
                 ));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw BadRequestException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -661,11 +701,13 @@ namespace Draftable.CompareAPI.Client
                                                   bool isPublic = false,
                                                   [CanBeNull] TimeSpan? expires = null)
         {
-            if (identifier != null) {
+            if (identifier != null)
+            {
                 ValidateIdentifier(identifier);
             }
             ValidateExpires(expires);
-            try {
+            try
+            {
                 return DeserializeComparison(await _client.PostAsync(
                     _urls.Comparisons,
                     cancellationToken: cancellationToken,
@@ -676,7 +718,9 @@ namespace Draftable.CompareAPI.Client
                     }.Concat(left.GetFormData("left")).Concat(right.GetFormData("right")),
                     files: left.GetFileContent("left").Concat(right.GetFileContent("right"))
                 ).ConfigureAwait(false));
-            } catch (RestApiClient.UnexpectedResponseException ex) {
+            }
+            catch (RestApiClient.UnexpectedResponseException ex)
+            {
                 throw BadRequestException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
         }
@@ -702,7 +746,8 @@ namespace Draftable.CompareAPI.Client
         {
             ValidateIdentifier(identifier ?? throw new ArgumentNullException(nameof(identifier)));
             var url = _urls.ComparisonViewer(AccountId, identifier);
-            if (wait) {
+            if (wait)
+            {
                 url += "?wait";
             }
             return url;
@@ -773,11 +818,14 @@ namespace Draftable.CompareAPI.Client
 
         public void Dispose()
         {
-            if (_disposed) {
+            if (_disposed)
+            {
                 return;
             }
-            lock (_disposeLock) {
-                if (_disposed) {
+            lock (_disposeLock)
+            {
+                if (_disposed)
+                {
                     return;
                 }
                 _disposed = true;
@@ -800,7 +848,8 @@ namespace Draftable.CompareAPI.Client
 
             var random = new Random();
             var sb = new StringBuilder();
-            for (int i = 0; i < identifierLength; ++i) {
+            for (int i = 0; i < identifierLength; ++i)
+            {
                 sb.Append(identifierCharacters[random.Next(0, identifierCharacters.Length)]);
             }
             return sb.ToString();
@@ -857,11 +906,16 @@ namespace Draftable.CompareAPI.Client
         [Pure, NotNull]
         private static Comparison DeserializeComparison([NotNull] string jsonComparison)
         {
-            try {
+            try
+            {
                 return JsonConvert.DeserializeObject<Comparison>(jsonComparison).AssertNotNull();
-            } catch (JsonException ex) {
+            }
+            catch (JsonException ex)
+            {
                 throw new UnknownResponseException(jsonComparison, "Unable to parse the response as a comparison.", ex);
-            } catch (NullReferenceException ex) {
+            }
+            catch (NullReferenceException ex)
+            {
                 throw new UnknownResponseException(jsonComparison, "Unable to parse the response as a comparison.", ex);
             }
         }
@@ -883,7 +937,7 @@ namespace Draftable.CompareAPI.Client
             */
 
             // ReSharper disable once NotNullMemberIsNotInitialized
-            [DataMember(Name="results"), NotNull]
+            [DataMember(Name = "results"), NotNull]
             public List<Comparison> Results { get; private set; }
         }
 
@@ -891,11 +945,16 @@ namespace Draftable.CompareAPI.Client
         [Pure, NotNull]
         private static List<Comparison> DeserializeAllComparisons([NotNull] string jsonComparisonArray)
         {
-            try {
+            try
+            {
                 return JsonConvert.DeserializeObject<AllComparisonsResult>(jsonComparisonArray).AssertNotNull().Results.AssertNotNull();
-            } catch (JsonException ex) {
+            }
+            catch (JsonException ex)
+            {
                 throw new UnknownResponseException(jsonComparisonArray, "Unable to parse the response and extract the array of comparison results.", ex);
-            } catch (NullReferenceException ex) {
+            }
+            catch (NullReferenceException ex)
+            {
                 throw new UnknownResponseException(jsonComparisonArray, "Unable to parse the response and extract the array of comparison results.", ex);
             }
         }
@@ -908,12 +967,14 @@ namespace Draftable.CompareAPI.Client
         private static bool CheckForHttpOrHttpsURL([NotNull] string url)
         {
             Uri uri;
-            if (!Uri.TryCreate(url, UriKind.Absolute, out uri)) {
+            if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+            {
                 return false;
             }
 
             var scheme = uri.Scheme.ToLowerInvariant();
-            if (scheme != "http" && scheme != "https") {
+            if (scheme != "http" && scheme != "https")
+            {
                 return false;
             }
 
@@ -928,15 +989,18 @@ namespace Draftable.CompareAPI.Client
         {
             Debug.Assert(accountId != null);
 
-            if (string.IsNullOrWhiteSpace(accountId)) {
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
                 throw new ArgumentOutOfRangeException(nameof(accountId), accountId, "`accountId` must not have whitespace, and must be a non-empty string.");
             }
 
-            if (accountId.Any(char.IsWhiteSpace)) {
+            if (accountId.Any(char.IsWhiteSpace))
+            {
                 throw new ArgumentOutOfRangeException(nameof(accountId), accountId, "`accountId` cannot contain whitespace.");
             }
 
-            if (accountId.Any(c => !char.IsLetterOrDigit(c) && c != '-')) {
+            if (accountId.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
+            {
                 throw new ArgumentOutOfRangeException(nameof(accountId), accountId, "`accountId` cannot contain characters that aren't alphanumeric or a dash ('-').");
             }
         }
@@ -945,7 +1009,8 @@ namespace Draftable.CompareAPI.Client
         {
             Debug.Assert(authToken != null);
 
-            if (!authToken.All(char.IsLetterOrDigit)) {
+            if (!authToken.All(char.IsLetterOrDigit))
+            {
                 throw new ArgumentOutOfRangeException(nameof(authToken), authToken, "`authToken` can only contain alphanumeric characters.");
             }
         }
@@ -962,20 +1027,24 @@ namespace Draftable.CompareAPI.Client
             const int minimumIdentifierLength = 1;
             const int maximumIdentifierLength = 1024;
 
-            if (identifier.Length < minimumIdentifierLength) {
+            if (identifier.Length < minimumIdentifierLength)
+            {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier, $"`identifier` must have at least {minimumIdentifierLength} characters.");
             }
 
-            if (identifier.Length > maximumIdentifierLength) {
+            if (identifier.Length > maximumIdentifierLength)
+            {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier, $"`identifier` can have at most {maximumIdentifierLength} characters.");
             }
 
-            if (identifier.Any(c => (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && !"-._".Contains(c))) {
+            if (identifier.Any(c => (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && !"-._".Contains(c)))
+            {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier, "`identifier` can only contain ASCII letters, numbers, and the characters \"-._\"");
             }
         }
 
-        [NotNull] private static readonly HashSet<string> _allowedLowercaseFileTypes = new HashSet<string> {
+        [NotNull]
+        private static readonly HashSet<string> _allowedLowercaseFileTypes = new HashSet<string> {
             // PDFs
             "pdf",
             // Word documents
@@ -991,7 +1060,8 @@ namespace Draftable.CompareAPI.Client
         {
             Debug.Assert(fileType != null);
 
-            if (!_allowedLowercaseFileTypes.Contains(fileType.ToLowerInvariant())) {
+            if (!_allowedLowercaseFileTypes.Contains(fileType.ToLowerInvariant()))
+            {
                 throw new ArgumentOutOfRangeException(nameof(fileType), fileType, $"`fileType` must be one of the allowed file types ({string.Join(", ", _allowedLowercaseFileTypes.OrderBy(x => x))}).");
             }
         }
@@ -1000,8 +1070,10 @@ namespace Draftable.CompareAPI.Client
         private static void ValidateExpires(TimeSpan? expires)
         {
             // ReSharper disable once UseNullPropagation
-            if (expires.HasValue) {
-                if (expires.Value.TotalSeconds <= 0) {
+            if (expires.HasValue)
+            {
+                if (expires.Value.TotalSeconds <= 0)
+                {
                     throw new ArgumentOutOfRangeException(nameof(expires), expires.Value, "`expires` must be a positive TimeSpan - comparisons cannot expire immediately, or in the past.");
                 }
             }

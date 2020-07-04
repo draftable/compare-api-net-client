@@ -60,7 +60,7 @@ namespace Draftable.CompareAPI.Client
             }
 
             [Pure, NotNull]
-            public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}).AssertNotNull();
+            public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }).AssertNotNull();
         }
 
 
@@ -171,29 +171,39 @@ namespace Draftable.CompareAPI.Client
             Failed = failed;
             ErrorMessage = errorMessage;
 
-            if (Ready) {
-                if (!failed.HasValue) {
+            if (Ready)
+            {
+                if (!failed.HasValue)
+                {
                     throw new ArgumentOutOfRangeException(nameof(failed), failed, "If the comparison is ready, `failed` cannot be null.");
                 }
-            } else {
-                if (failed.HasValue) {
+            }
+            else
+            {
+                if (failed.HasValue)
+                {
                     throw new ArgumentOutOfRangeException(nameof(failed), failed, "If the comparison isn't ready, `failed` must be null.");
                 }
             }
 
-            if (failed.HasValue && failed.Value) {
-                if (errorMessage == null) {
+            if (failed.HasValue && failed.Value)
+            {
+                if (errorMessage == null)
+                {
                     throw new ArgumentOutOfRangeException(nameof(errorMessage), errorMessage, "If the comparison has failed, `errorMessage` cannot be null.");
                 }
-            } else {
-                if (errorMessage != null) {
+            }
+            else
+            {
+                if (errorMessage != null)
+                {
                     throw new ArgumentOutOfRangeException(nameof(errorMessage), errorMessage, "If the comparison hasn't failed, `errorMessage` must be null.");
                 }
             }
         }
 
         [Pure, NotNull]
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}).AssertNotNull();
+        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }).AssertNotNull();
     }
 
 }

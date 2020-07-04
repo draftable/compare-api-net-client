@@ -36,7 +36,8 @@ namespace Draftable.CompareAPI.Client.Internal
         [Pure, NotNull]
         private static byte[] HMACDigest([NotNull] string key, [NotNull] string content)
         {
-            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key))) {
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key)))
+            {
                 return hmac.ComputeHash(Encoding.UTF8.GetBytes(content));
             }
         }
@@ -46,7 +47,8 @@ namespace Draftable.CompareAPI.Client.Internal
         {
             const string hexDigits = "0123456789abcdef";
             var sb = new StringBuilder(2 * bytes.Length);
-            foreach (var b in bytes) {
+            foreach (var b in bytes)
+            {
                 sb.Append(hexDigits[b >> 4]);
                 sb.Append(hexDigits[b & 0xF]);
             }

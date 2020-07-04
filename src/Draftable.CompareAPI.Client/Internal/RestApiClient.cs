@@ -60,20 +60,26 @@ namespace Draftable.CompareAPI.Client.Internal
         {
             var handler = new HttpClientHandler();
             HttpClient httpClient;
-            try {
+            try
+            {
                 httpClientHandlerConfigurator?.Invoke(handler);
                 httpClient = new HttpClient(handler, disposeHandler: true);
-            } catch {
+            }
+            catch
+            {
                 handler.Dispose();
                 throw;
             }
-            try {
+            try
+            {
                 // ReSharper disable once PossibleNullReferenceException
                 httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Token {authToken}");
 
                 return httpClient;
-            } catch {
+            }
+            catch
+            {
                 httpClient.Dispose();
                 throw;
             }
@@ -87,7 +93,8 @@ namespace Draftable.CompareAPI.Client.Internal
         [NotNull]
         private static async Task CheckStatusIsAsExpected([NotNull] HttpResponseMessage response, HttpStatusCode expectedStatusCode)
         {
-            if (response.StatusCode != expectedStatusCode) {
+            if (response.StatusCode != expectedStatusCode)
+            {
                 var responseContent = await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false);
                 throw new UnexpectedResponseException(expectedHttpStatusCode: expectedStatusCode,
                                                       responseHttpStatusCode: response.StatusCode,
@@ -104,20 +111,26 @@ namespace Draftable.CompareAPI.Client.Internal
         private static Uri PrepareURI([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null)
         {
             Uri endpointUri;
-            try {
+            try
+            {
                 endpointUri = new Uri(endpoint, UriKind.Absolute);
-            } catch (UriFormatException) {
+            }
+            catch (UriFormatException)
+            {
                 // TODO do something with this
                 throw new NotImplementedException();
             }
 
             var builder = new UriBuilder(endpointUri);
 
-            if (queryParameters != null) {
+            if (queryParameters != null)
+            {
                 // TODO test this
                 var queryBuilder = builder.Query.Length > 0 ? new StringBuilder(builder.Query.TrimStart('?')) : new StringBuilder();
-                foreach (var parameterAndValue in queryParameters) {
-                    if (queryBuilder.Length > 0) {
+                foreach (var parameterAndValue in queryParameters)
+                {
+                    if (queryBuilder.Length > 0)
+                    {
                         queryBuilder.Append('&');
                     }
                     queryBuilder.Append(WebUtility.UrlEncode(parameterAndValue.Key));
@@ -139,20 +152,28 @@ namespace Draftable.CompareAPI.Client.Internal
             bool anyData = dataList != null && dataList.Count > 0;
             bool anyFiles = filesList != null && filesList.Count > 0;
 
-            if (anyFiles) {
+            if (anyFiles)
+            {
                 var content = new MultipartFormDataContent();
-                if (anyData) {
-                    foreach (var datum in dataList) {
+                if (anyData)
+                {
+                    foreach (var datum in dataList)
+                    {
                         content.Add(name: datum.Key, content: new StringContent(datum.Value));
                     }
                 }
-                foreach (var file in filesList) {
+                foreach (var file in filesList)
+                {
                     content.Add(name: file.Key, fileName: file.Key, content: new StreamContent(file.Value));
                 }
                 return content;
-            } else if (anyData) {
+            }
+            else if (anyData)
+            {
                 return new FormUrlEncodedContent(dataList);
-            } else {
+            }
+            else
+            {
                 return new ByteArrayContent(new byte[0]);
             }
         }
@@ -217,7 +238,8 @@ namespace Draftable.CompareAPI.Client.Internal
         [NotNull, ItemNotNull]
         public async Task<string> GetAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            using (var response = await _httpClient.GetAsync(PrepareURI(endpoint, queryParameters), HttpCompletionOption.ResponseContentRead, cancellationToken).AssertNotNull().ConfigureAwait(false)) {
+            using (var response = await _httpClient.GetAsync(PrepareURI(endpoint, queryParameters), HttpCompletionOption.ResponseContentRead, cancellationToken).AssertNotNull().ConfigureAwait(false))
+            {
                 cancellationToken.ThrowIfCancellationRequested();
                 await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
                 return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
@@ -249,7 +271,8 @@ namespace Draftable.CompareAPI.Client.Internal
         [NotNull]
         public async Task DeleteAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
         {
-            using (var response = await _httpClient.DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
+            using (var response = await _httpClient.DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken).AssertNotNull().ConfigureAwait(false))
+            {
                 cancellationToken.ThrowIfCancellationRequested();
                 await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
             }
@@ -294,17 +317,23 @@ namespace Draftable.CompareAPI.Client.Internal
                                             [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
                                             HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
         {
-            try {
-                using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false)) {
+            try
+            {
+                using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false))
+                {
                     cancellationToken.ThrowIfCancellationRequested();
                     await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
                     return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
                 }
-            } catch (HttpRequestException ex) {
+            }
+            catch (HttpRequestException ex)
+            {
                 // If we upload files but have bad credentials, then the server seems to terminate the connection prematurely.
                 // This gives us a particular exception that we can check for, and then rethrow a more appropriate exception.
-                if (files != null) {
-                    if (ex.InnerException?.Message == "The underlying connection was closed: The connection was closed unexpectedly.") {
+                if (files != null)
+                {
+                    if (ex.InnerException?.Message == "The underlying connection was closed: The connection was closed unexpectedly.")
+                    {
                         // ReSharper disable once ThrowFromCatchWithNoInnerException
                         throw new UnexpectedResponseException(expectedStatusCode, HttpStatusCode.Unauthorized, "Connection terminated early due to authentication failure - check that your auth token is valid.", ex);
                     }
