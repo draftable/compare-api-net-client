@@ -16,6 +16,10 @@ insert_final_newline = true
 [*.md]
 trim_trailing_whitespace = false
 
+# NuGet configs
+[NuGet.config]
+indent_size = 2
+
 # Rider configuration
 [src/.idea/**/*.xml]
 indent_size = 2
