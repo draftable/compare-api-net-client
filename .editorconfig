@@ -32,7 +32,9 @@ insert_final_newline = false
 
 # Visual Studio projects
 [*.*proj]
+charset = unset
 indent_size = 2
+insert_final_newline = unset
 
 # Visual Studio solutions
 [*.sln]
