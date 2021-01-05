@@ -811,6 +811,110 @@ namespace Draftable.CompareAPI.Client
 
         #endregion PublicViewerURL, SignedViewerURL
 
+        #region Export
+
+        /// <summary>
+        /// Runs an export of given kind, for a given existing comparison
+        /// </summary>
+        /// <param name="comparisonIdentifier">The unique identifier of the comparison to export</param>
+        /// <param name="exportKind">Export kind. Supported values: single_page, combined, left, right.</param>
+        /// <returns>An <see cref="Export"/> object giving metadata about the newly created export.</returns>
+        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
+        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
+        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        [PublicAPI, Pure, NotNull]
+        public Export RunExport([NotNull] string comparisonIdentifier, string exportKind)
+        {
+            ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
+            try
+            {
+                var inputData = new Dictionary<string, string>
+                {
+                    {"comparison", comparisonIdentifier},
+                    {"kind", exportKind}
+                };
+                var exportJson = _client.Post(_urls.Exports, data: inputData);
+                return SerializationUtils.DeserializeExport(exportJson);
+            } catch (RestApiClient.UnexpectedResponseException ex) {
+                throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Runs an export of given kind, for a given existing comparison
+        /// </summary>
+        /// <param name="comparisonIdentifier">The unique identifier of the comparison to export</param>
+        /// <param name="exportKind">Export kind. Supported values: single_page, combined, left, right.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> for cancelling the operation.</param>
+        /// <returns>An <see cref="Export"/> object giving metadata about the newly created export.</returns>
+        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
+        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
+        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        [PublicAPI, Pure, NotNull]
+        public async Task<Export> RunExportAsync(
+            [NotNull] string comparisonIdentifier,
+            string exportKind,
+            CancellationToken cancellationToken)
+        {
+            ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
+            try
+            {
+                var inputData = new Dictionary<string, string>
+                {
+                    {"comparison", comparisonIdentifier},
+                    {"kind", exportKind}
+                };
+                var exportJson = await _client.PostAsync(_urls.Exports, data: inputData, cancellationToken: cancellationToken);
+                return SerializationUtils.DeserializeExport(exportJson);
+            } catch (RestApiClient.UnexpectedResponseException ex) {
+                throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Gets an existing Export, of given identifier.
+        /// </summary>
+        /// <param name="exportIdentifier">The unique identifier of the Export to access. </param>
+        /// <returns>An <see cref="Export"/> object giving metadata about the export accessed</returns>
+        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
+        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
+        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        [PublicAPI, Pure, NotNull]
+        public Export GetExport([NotNull] string exportIdentifier)
+        {
+            try
+            {
+                var exportJson = _client.Get(_urls.Export(exportIdentifier));
+                return SerializationUtils.DeserializeExport(exportJson);
+            } catch (RestApiClient.UnexpectedResponseException ex) {
+                throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Gets an existing Export, of given identifier.
+        /// </summary>
+        /// <param name="exportIdentifier">The unique identifier of the Export to access.</param>
+        /// /// <param name="cancellationToken">A <see cref="CancellationToken"/> for cancelling the operation.</param>
+        /// <returns>An <see cref="Export"/> object giving metadata about the export accessed</returns>
+        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
+        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
+        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        [PublicAPI, Pure, NotNull]
+        public async Task<Export> GetExportAsync([NotNull] string exportIdentifier, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var exportJson = await _client.GetAsync(_urls.Export(exportIdentifier), cancellationToken);
+                return SerializationUtils.DeserializeExport(exportJson);
+            } catch (RestApiClient.UnexpectedResponseException ex) {
+                throw NotFoundException.For(ex) ?? InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
+            }
+        }
+
+
+        #endregion Export
+
         #region Dispose
 
         [NotNull] private readonly object _disposeLock = new object();
@@ -873,16 +977,17 @@ namespace Draftable.CompareAPI.Client
 
             public URLs([NotNull] string baseURL)
             {
-                _baseUrl = baseURL.EndsWith(@"/") ? baseURL.TrimEnd('/') : baseURL;
+                _baseUrl = baseURL.EndsWith(@"/", StringComparison.InvariantCultureIgnoreCase) ? baseURL.TrimEnd('/') : baseURL;
             }
 
             [NotNull] public string Comparisons => _baseUrl + "/comparisons";
+            [NotNull] public string Exports => _baseUrl + "/exports";
 
-            [NotNull]
-            public string Comparison([NotNull] string identifier) => $"{Comparisons}/{identifier}";
+            [NotNull] public string Comparison([NotNull] string identifier) => $"{Comparisons}/{identifier}";
+            [NotNull] public string Export([NotNull] string identifier) => $"{Exports}/{identifier}";
 
-            [NotNull]
-            public string ComparisonViewer([NotNull] string accountId, [NotNull] string identifier) => $"{Comparisons}/viewer/{accountId}/{identifier}";
+            [NotNull] public string ComparisonViewer([NotNull] string accountId, [NotNull] string identifier)
+                => $"{Comparisons}/viewer/{accountId}/{identifier}";
         }
 
         #endregion URLs
@@ -1083,4 +1188,5 @@ namespace Draftable.CompareAPI.Client
 
         #endregion Private fields and helpers
     }
+
 }
