@@ -3,8 +3,11 @@ Draftable Compare API - .NET Client Library
 
 [![nuget ver](https://img.shields.io/nuget/v/Draftable.CompareAPI.Client)](https://www.nuget.org/packages/Draftable.CompareAPI.Client)
 [![nuget dlt](https://img.shields.io/nuget/dt/Draftable.CompareAPI.Client)](https://www.nuget.org/packages/Draftable.CompareAPI.Client)
-[![azure devops](https://dev.azure.com/draftable/Compare%20API%20-%20.NET%20Client%20Library/_apis/build/status/draftable.compare-api-net-client?branchName=stable)](https://dev.azure.com/draftable/Compare%20API%20-%20.NET%20Client%20Library/_build/latest?definitionId=1&branchName=stable)
 [![license](https://img.shields.io/github/license/draftable/compare-api-net-client)](https://choosealicense.com/licenses/mit/)
+
+[![azure devops](https://dev.azure.com/draftable/Compare%20API%20-%20.NET%20Client%20Library/_apis/build/status/draftable.compare-api-net-client?branchName=stable)](https://dev.azure.com/draftable/Compare%20API%20-%20.NET%20Client%20Library/_build/latest?definitionId=1&branchName=stable)
+
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/draftable/compare-api-net-client)
 
 A thin .NET client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
