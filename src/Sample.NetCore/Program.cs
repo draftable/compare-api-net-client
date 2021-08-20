@@ -2,11 +2,12 @@ using System.Net.Http;
 
 using Sample.Core;
 
+
 namespace Sample.NetCore
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // TODO - PROVIDE PROPER VALUES
             var cloudAccountId = "";
@@ -15,7 +16,8 @@ namespace Sample.NetCore
             var selfHostedAuthToken = "";
             var selfHostedBaseUrl = "";
 
-            new ComparisonsSample(cloudAccountId, cloudAuthToken, selfHostedAccountId, selfHostedAuthToken, selfHostedBaseUrl, ConfigureHttpHandler).Run();
+            new ComparisonsSample(cloudAccountId, cloudAuthToken, selfHostedAccountId, selfHostedAuthToken,
+                                  selfHostedBaseUrl, ConfigureHttpHandler).Run();
         }
 
         /*

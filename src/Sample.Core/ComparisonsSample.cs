@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Draftable.CompareAPI.Client;
 
+
 namespace Sample.Core
 {
     public class ComparisonsSample
@@ -16,11 +17,12 @@ namespace Sample.Core
         private readonly string _selfHostedBaseUrl;
         private readonly Action<HttpClientHandler> _clientConfig;
 
-        public ComparisonsSample(
-            string cloudAccountId, string cloudAuthToken,
-            string selfHostedAccountId, string selfHostedAuthToken,
-            string selfHostedBaseUrl,
-            Action<HttpClientHandler> clientConfig = null)
+        public ComparisonsSample(string cloudAccountId,
+                                 string cloudAuthToken,
+                                 string selfHostedAccountId,
+                                 string selfHostedAuthToken,
+                                 string selfHostedBaseUrl,
+                                 Action<HttpClientHandler> clientConfig = null)
         {
             _cloudAccountId = cloudAccountId;
             _cloudAuthToken = cloudAuthToken;
@@ -107,6 +109,7 @@ namespace Sample.Core
                 {
                     throw new TimeoutException("Timeout exceeded while waiting for comparison to get ready");
                 }
+
                 Task.Delay(1000).Wait();
                 newComparison = client.Get(newId);
                 timeoutCount++;
@@ -117,10 +120,7 @@ namespace Sample.Core
             return newId;
         }
 
-        private string HasFailed(Comparison newComparison)
-        {
-            return newComparison.Failed == true ? "yes" : "no";
-        }
+        private string HasFailed(Comparison newComparison) { return newComparison.Failed == true ? "yes" : "no"; }
 
         private Comparison CreateComparisonFromUrls(Comparisons comparisons)
         {
@@ -129,9 +129,8 @@ namespace Sample.Core
             return comparisons.Create(
                 Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
                 Comparisons.Side.FromURL("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf"),
-                identifier: identifier,
-                expires: TimeSpan.FromMinutes(30)
-            );
+                identifier,
+                expires: TimeSpan.FromMinutes(30));
         }
 
         private Comparison CreateComparisonFromData(Comparisons comparisons)
@@ -139,12 +138,10 @@ namespace Sample.Core
             var identifier = Comparisons.GenerateIdentifier();
 
             // TODO provide proper file urls
-            return comparisons.Create(
-                Comparisons.Side.FromFile(@"C:\draftable\testing\old.pdf"),
-                Comparisons.Side.FromFile(@"C:\draftable\testing\new.pdf"),
-                identifier: identifier,
-                expires: TimeSpan.FromMinutes(30)
-            );
+            return comparisons.Create(Comparisons.Side.FromFile(@"C:\draftable\testing\old.pdf"),
+                                      Comparisons.Side.FromFile(@"C:\draftable\testing\new.pdf"),
+                                      identifier,
+                                      expires: TimeSpan.FromMinutes(30));
         }
     }
 }

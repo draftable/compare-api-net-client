@@ -8,7 +8,9 @@ namespace Draftable.CompareAPI.Client.Internal
 {
     internal static class AssertionExtensions
     {
-        [Pure, NotNull, ContractAnnotation("value:null => halt")]
+        [Pure]
+        [NotNull]
+        [ContractAnnotation("value:null => halt")]
         public static T AssertNotNull<T>([CanBeNull] this T value)
             where T : class
         {

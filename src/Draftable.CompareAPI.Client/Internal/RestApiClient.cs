@@ -10,17 +10,19 @@ using System.Threading.Tasks;
 
 using JetBrains.Annotations;
 
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Global
-
 
 namespace Draftable.CompareAPI.Client.Internal
 {
     /// <summary>
-    /// Provides a simplified interface to the Draftable API's REST endpoints, using an underlying <see cref="HttpClient"/>.
+    ///     Provides a simplified interface to the Draftable API's REST endpoints, using an underlying
+    ///     <see cref="HttpClient" />.
     /// </summary>
     /// <remarks>
-    /// Disposing a <see cref="RestApiClient"/> will dispose the underlying <see cref="HttpClient"/> and associated <see cref="HttpClientHandler"/>.
+    ///     Disposing a <see cref="RestApiClient" /> will dispose the underlying <see cref="HttpClient" /> and associated
+    ///     <see cref="HttpClientHandler" />.
     /// </remarks>
     internal class RestApiClient : IDisposable
     {
@@ -40,9 +42,13 @@ namespace Draftable.CompareAPI.Client.Internal
         /// <param name="authToken">The token to use for authorization.</param>
         /// <param name="httpClientHandlerConfigurator">A callback that can configure the <see cref="HttpClientHandler"/> underlying this <see cref="RestApiClient"/>.</param>
         // ReSharper disable once ExceptionNotThrown
-        /// <exception cref="ArgumentNullException"><paramref name="authToken"/> cannot be null.</exception>
-        /// <exception cref="Exception"><paramref name="httpClientHandlerConfigurator"/> threw an exception or misconfigured the <see cref="HttpClientHandler"/>.</exception>
-        public RestApiClient([NotNull] string authToken, [CanBeNull, InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
+        /// <exception cref="ArgumentNullException"><paramref name="authToken" /> cannot be null.</exception>
+        /// <exception cref="Exception">
+        ///     <paramref name="httpClientHandlerConfigurator" /> threw an exception or misconfigured the
+        ///     <see cref="HttpClientHandler" />.
+        /// </exception>
+        public RestApiClient([NotNull] string authToken,
+                             [CanBeNull] [InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
         {
             _authToken = authToken ?? throw new ArgumentNullException(nameof(authToken));
             _httpClient = PrepareHTTPClient(_authToken, httpClientHandlerConfigurator);
@@ -54,22 +60,29 @@ namespace Draftable.CompareAPI.Client.Internal
 
         #region PrepareHTTPClient
 
-        /// <exception cref="Exception"><paramref name="httpClientHandlerConfigurator"/> threw an exception or misconfigured the <see cref="HttpClientHandler"/>.</exception>
-        [Pure, NotNull]
-        private HttpClient PrepareHTTPClient([NotNull] string authToken, [CanBeNull, InstantHandle] Action<HttpClientHandler> httpClientHandlerConfigurator)
+        /// <exception cref="Exception">
+        ///     <paramref name="httpClientHandlerConfigurator" /> threw an exception or misconfigured the
+        ///     <see cref="HttpClientHandler" />.
+        /// </exception>
+        [Pure]
+        [NotNull]
+        private HttpClient PrepareHTTPClient([NotNull] string authToken,
+                                             [CanBeNull] [InstantHandle]
+                                             Action<HttpClientHandler> httpClientHandlerConfigurator)
         {
             var handler = new HttpClientHandler();
             HttpClient httpClient;
             try
             {
                 httpClientHandlerConfigurator?.Invoke(handler);
-                httpClient = new HttpClient(handler, disposeHandler: true);
+                httpClient = new HttpClient(handler, true);
             }
             catch
             {
                 handler.Dispose();
                 throw;
             }
+
             try
             {
                 // ReSharper disable once PossibleNullReferenceException
@@ -91,15 +104,16 @@ namespace Draftable.CompareAPI.Client.Internal
 
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         [NotNull]
-        private static async Task CheckStatusIsAsExpected([NotNull] HttpResponseMessage response, HttpStatusCode expectedStatusCode)
+        private static async Task CheckStatusIsAsExpected([NotNull] HttpResponseMessage response,
+                                                          HttpStatusCode expectedStatusCode)
         {
             if (response.StatusCode != expectedStatusCode)
             {
                 var responseContent = await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false);
-                throw new UnexpectedResponseException(expectedHttpStatusCode: expectedStatusCode,
-                                                      responseHttpStatusCode: response.StatusCode,
-                                                      responseReason: response.ReasonPhrase ?? response.StatusCode.ToString(),
-                                                      responseContent: responseContent.AssertNotNull());
+                throw new UnexpectedResponseException(expectedStatusCode,
+                                                      response.StatusCode,
+                                                      response.ReasonPhrase ?? response.StatusCode.ToString(),
+                                                      responseContent.AssertNotNull());
             }
         }
 
@@ -107,8 +121,11 @@ namespace Draftable.CompareAPI.Client.Internal
 
         #region PrepareURI, PreparePostContent
 
-        [Pure, NotNull]
-        private static Uri PrepareURI([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null)
+        [Pure]
+        [NotNull]
+        private static Uri PrepareURI([NotNull] string endpoint,
+                                      [CanBeNull] [InstantHandle]
+                                      IEnumerable<KeyValuePair<string, string>> queryParameters = null)
         {
             Uri endpointUri;
             try
@@ -126,31 +143,38 @@ namespace Draftable.CompareAPI.Client.Internal
             if (queryParameters != null)
             {
                 // TODO test this
-                var queryBuilder = builder.Query.Length > 0 ? new StringBuilder(builder.Query.TrimStart('?')) : new StringBuilder();
+                var queryBuilder = builder.Query.Length > 0
+                    ? new StringBuilder(builder.Query.TrimStart('?'))
+                    : new StringBuilder();
                 foreach (var parameterAndValue in queryParameters)
                 {
                     if (queryBuilder.Length > 0)
                     {
                         queryBuilder.Append('&');
                     }
+
                     queryBuilder.Append(WebUtility.UrlEncode(parameterAndValue.Key));
                     queryBuilder.Append('=');
                     queryBuilder.Append(WebUtility.UrlEncode(parameterAndValue.Value));
                 }
+
                 builder.Query = queryBuilder.ToString();
             }
 
             return builder.Uri;
         }
 
-        [Pure, NotNull]
-        private static HttpContent PreparePostContent([CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> data, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files)
+        [Pure]
+        [NotNull]
+        private static HttpContent PreparePostContent(
+            [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> data,
+            [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files)
         {
             var dataList = data?.Where(datum => datum.Value != null).ToList();
             var filesList = files?.ToList();
 
-            bool anyData = dataList != null && dataList.Count > 0;
-            bool anyFiles = filesList != null && filesList.Count > 0;
+            var anyData = dataList != null && dataList.Count > 0;
+            var anyFiles = filesList != null && filesList.Count > 0;
 
             if (anyFiles)
             {
@@ -162,10 +186,12 @@ namespace Draftable.CompareAPI.Client.Internal
                         content.Add(name: datum.Key, content: new StringContent(datum.Value));
                     }
                 }
+
                 foreach (var file in filesList)
                 {
                     content.Add(name: file.Key, fileName: file.Key, content: new StreamContent(file.Value));
                 }
+
                 return content;
             }
             else if (anyData)
@@ -191,8 +217,12 @@ namespace Draftable.CompareAPI.Client.Internal
             [NotNull] public string ResponseReason { get; }
             [NotNull] public string ResponseContent { get; }
 
-            public UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode, HttpStatusCode responseHttpStatusCode, [NotNull] string responseReason, [NotNull] string responseContent)
-                : base($"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead received status `HttpStatusCode.{responseHttpStatusCode}` (\"{responseReason}\"). Response:\n{responseContent}")
+            public UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode,
+                                               HttpStatusCode responseHttpStatusCode,
+                                               [NotNull] string responseReason,
+                                               [NotNull] string responseContent)
+                : base(
+                    $"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead received status `HttpStatusCode.{responseHttpStatusCode}` (\"{responseReason}\"). Response:\n{responseContent}")
             {
                 ExpectedHttpStatusCode = expectedHttpStatusCode;
                 ResponseHttpStatusCode = responseHttpStatusCode;
@@ -200,8 +230,13 @@ namespace Draftable.CompareAPI.Client.Internal
                 ResponseContent = responseContent;
             }
 
-            internal UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode, HttpStatusCode responseHttpStatusCode, [NotNull] string errorReason, [NotNull] HttpRequestException exception) :
-                base($"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead an error occurred:\n{errorReason}", exception)
+            internal UnexpectedResponseException(HttpStatusCode expectedHttpStatusCode,
+                                                 HttpStatusCode responseHttpStatusCode,
+                                                 [NotNull] string errorReason,
+                                                 [NotNull] HttpRequestException exception) :
+                base(
+                    $"Expected a response with status code `HttpStatusCode.{expectedHttpStatusCode}` but instead an error occurred:\n{errorReason}",
+                    exception)
             {
                 ExpectedHttpStatusCode = expectedHttpStatusCode;
                 ResponseHttpStatusCode = responseHttpStatusCode;
@@ -219,30 +254,51 @@ namespace Draftable.CompareAPI.Client.Internal
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         [NotNull]
-        public string Get([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        public string Get([NotNull] string endpoint,
+                          [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                          HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
             // ReSharper disable once ExceptionNotDocumented
-            => GetAsync(endpoint, queryParameters: queryParameters, expectedStatusCode: expectedStatusCode).ConfigureAwait(false).GetAwaiter().GetResult().AssertNotNull();
+        {
+            return GetAsync(endpoint, queryParameters, expectedStatusCode)
+                  .ConfigureAwait(false).GetAwaiter().GetResult()
+                  .AssertNotNull();
+        }
 
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
-        [NotNull, ItemNotNull]
-        public Task<string> GetAsync([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        [NotNull]
+        [ItemNotNull]
+        public Task<string> GetAsync([NotNull] string endpoint,
+                                     [CanBeNull] [InstantHandle]
+                                     IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                                     HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
             // ReSharper disable once ExceptionNotDocumented
-            => GetAsync(endpoint, cancellationToken: CancellationToken.None, queryParameters: queryParameters, expectedStatusCode: expectedStatusCode);
+        {
+            return GetAsync(endpoint, CancellationToken.None, queryParameters, expectedStatusCode);
+        }
 
         // ReSharper disable ExceptionNotThrown
-        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> has had cancellation requested.</exception>
+        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken" /> has had cancellation requested.</exception>
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         // ReSharper restore ExceptionNotThrown
-        [NotNull, ItemNotNull]
-        public async Task<string> GetAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+        [NotNull]
+        [ItemNotNull]
+        public async Task<string> GetAsync([NotNull] string endpoint,
+                                           CancellationToken cancellationToken,
+                                           [CanBeNull] [InstantHandle]
+                                           IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                                           HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
-            using (var response = await _httpClient.GetAsync(PrepareURI(endpoint, queryParameters), HttpCompletionOption.ResponseContentRead, cancellationToken).AssertNotNull().ConfigureAwait(false))
+            using (var response = await _httpClient
+                                       .GetAsync(PrepareURI(endpoint, queryParameters),
+                                                 HttpCompletionOption.ResponseContentRead, cancellationToken)
+                                       .AssertNotNull().ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
-                return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
+                return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false))
+                   .AssertNotNull();
             }
         }
 
@@ -252,26 +308,41 @@ namespace Draftable.CompareAPI.Client.Internal
 
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
-        public void Delete([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
+        public void Delete([NotNull] string endpoint,
+                           [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                           HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
             // ReSharper disable once ExceptionNotDocumented
-            => DeleteAsync(endpoint, queryParameters: queryParameters, expectedStatusCode: expectedStatusCode).ConfigureAwait(false).GetAwaiter().GetResult();
+        {
+            DeleteAsync(endpoint, queryParameters, expectedStatusCode).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
 
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         [NotNull]
-        public Task DeleteAsync([NotNull] string endpoint, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
+        public Task DeleteAsync([NotNull] string endpoint,
+                                [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters =
+                                    null,
+                                HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
             // ReSharper disable once ExceptionNotDocumented
-            => DeleteAsync(endpoint, cancellationToken: CancellationToken.None, queryParameters: queryParameters, expectedStatusCode: expectedStatusCode);
+        {
+            return DeleteAsync(endpoint, CancellationToken.None, queryParameters, expectedStatusCode);
+        }
 
         // ReSharper disable ExceptionNotThrown
-        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> has had cancellation requested.</exception>
+        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken" /> has had cancellation requested.</exception>
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         // ReSharper restore ExceptionNotThrown
         [NotNull]
-        public async Task DeleteAsync([NotNull] string endpoint, CancellationToken cancellationToken, [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null, HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
+        public async Task DeleteAsync([NotNull] string endpoint,
+                                      CancellationToken cancellationToken,
+                                      [CanBeNull] [InstantHandle]
+                                      IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                                      HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent)
         {
-            using (var response = await _httpClient.DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken).AssertNotNull().ConfigureAwait(false))
+            using (var response = await _httpClient
+                                       .DeleteAsync(PrepareURI(endpoint, queryParameters), cancellationToken)
+                                       .AssertNotNull().ConfigureAwait(false))
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
@@ -286,44 +357,61 @@ namespace Draftable.CompareAPI.Client.Internal
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         [NotNull]
         public string Post([NotNull] string endpoint,
-                           [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
-                           [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> data = null,
-                           [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
+                           [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                           [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> data = null,
+                           [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
                            HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
             // ReSharper disable once ExceptionNotDocumented
-            => PostAsync(endpoint, queryParameters: queryParameters, data: data, files: files, expectedStatusCode: expectedStatusCode).ConfigureAwait(false).GetAwaiter().GetResult().AssertNotNull();
+        {
+            return PostAsync(endpoint, queryParameters, data, files, expectedStatusCode).ConfigureAwait(false)
+               .GetAwaiter()
+               .GetResult().AssertNotNull();
+        }
 
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
-        [NotNull, ItemNotNull]
+        [NotNull]
+        [ItemNotNull]
         public Task<string> PostAsync([NotNull] string endpoint,
-                                      [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
-                                      [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> data = null,
-                                      [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
+                                      [CanBeNull] [InstantHandle]
+                                      IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                                      [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> data = null,
+                                      [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files =
+                                          null,
                                       HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
             // ReSharper disable once ExceptionNotDocumented
-            => PostAsync(endpoint, cancellationToken: CancellationToken.None, queryParameters: queryParameters, data: data, files: files, expectedStatusCode: expectedStatusCode);
+        {
+            return PostAsync(endpoint, CancellationToken.None, queryParameters, data, files, expectedStatusCode);
+        }
 
         // ReSharper disable ExceptionNotThrown
-        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken"/> has had cancellation requested.</exception>
+        /// <exception cref="OperationCanceledException"><paramref name="cancellationToken" /> has had cancellation requested.</exception>
         /// <exception cref="UnexpectedResponseException">The response had an unexpected status code.</exception>
         /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
         // ReSharper restore ExceptionNotThrown
-        [NotNull, ItemNotNull]
+        [NotNull]
+        [ItemNotNull]
         public async Task<string> PostAsync([NotNull] string endpoint,
                                             CancellationToken cancellationToken,
-                                            [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> queryParameters = null,
-                                            [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, string>> data = null,
-                                            [CanBeNull, InstantHandle] IEnumerable<KeyValuePair<string, Stream>> files = null,
+                                            [CanBeNull] [InstantHandle]
+                                            IEnumerable<KeyValuePair<string, string>> queryParameters = null,
+                                            [CanBeNull] [InstantHandle] IEnumerable<KeyValuePair<string, string>> data =
+                                                null,
+                                            [CanBeNull] [InstantHandle]
+                                            IEnumerable<KeyValuePair<string, Stream>> files = null,
                                             HttpStatusCode expectedStatusCode = HttpStatusCode.Created)
         {
             try
             {
-                using (var response = await _httpClient.PostAsync(PrepareURI(endpoint, queryParameters), PreparePostContent(data, files), cancellationToken).AssertNotNull().ConfigureAwait(false))
+                using (var response = await _httpClient
+                                           .PostAsync(PrepareURI(endpoint, queryParameters),
+                                                      PreparePostContent(data, files), cancellationToken)
+                                           .AssertNotNull().ConfigureAwait(false))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     await CheckStatusIsAsExpected(response.AssertNotNull(), expectedStatusCode).ConfigureAwait(false);
-                    return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false)).AssertNotNull();
+                    return (await response.Content.AssertNotNull().ReadAsStringAsync().ConfigureAwait(false))
+                       .AssertNotNull();
                 }
             }
             catch (HttpRequestException ex)
@@ -332,12 +420,16 @@ namespace Draftable.CompareAPI.Client.Internal
                 // This gives us a particular exception that we can check for, and then rethrow a more appropriate exception.
                 if (files != null)
                 {
-                    if (ex.InnerException?.Message == "The underlying connection was closed: The connection was closed unexpectedly.")
+                    if (ex.InnerException?.Message ==
+                        "The underlying connection was closed: The connection was closed unexpectedly.")
                     {
                         // ReSharper disable once ThrowFromCatchWithNoInnerException
-                        throw new UnexpectedResponseException(expectedStatusCode, HttpStatusCode.Unauthorized, "Connection terminated early due to authentication failure - check that your auth token is valid.", ex);
+                        throw new UnexpectedResponseException(expectedStatusCode, HttpStatusCode.Unauthorized,
+                                                              "Connection terminated early due to authentication failure - check that your auth token is valid.",
+                                                              ex);
                     }
                 }
+
                 throw;
             }
         }
@@ -348,10 +440,7 @@ namespace Draftable.CompareAPI.Client.Internal
 
         #region Dispose
 
-        public void Dispose()
-        {
-            _httpClient.Dispose();
-        }
+        public void Dispose() { _httpClient.Dispose(); }
 
         #endregion Dispose
     }

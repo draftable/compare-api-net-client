@@ -2,6 +2,7 @@ using System.Configuration;
 
 using Sample.Core;
 
+
 namespace Sample.NetFramework
 {
     internal static class Program
@@ -14,7 +15,8 @@ namespace Sample.NetFramework
             var selfHostedAuthToken = ConfigurationManager.AppSettings["selfHostedAuthToken"];
             var selfHostedBaseUrl = ConfigurationManager.AppSettings["selfHostedBaseUrl"];
 
-            new ComparisonsSample(cloudAccountId, cloudAuthToken, selfHostedAccountId, selfHostedAuthToken, selfHostedBaseUrl).Run();
+            new ComparisonsSample(cloudAccountId, cloudAuthToken, selfHostedAccountId, selfHostedAuthToken,
+                                  selfHostedBaseUrl).Run();
         }
     }
 }
