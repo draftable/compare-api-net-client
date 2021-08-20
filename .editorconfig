@@ -12,6 +12,10 @@ indent_size = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# JSON
+[*.json]
+insert_final_newline = false
+
 # Markdown
 [*.md]
 trim_trailing_whitespace = false

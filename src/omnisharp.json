@@ -1,0 +1,14 @@
+{
+    "FormattingOptions": {
+        "EnableEditorConfigSupport": true
+    },
+    "RenameOptions": {
+        "RenameInComments": true,
+        "RenameInStrings": true,
+        "RenameOverloads": true
+    },
+    "RoslynExtensionsOptions": {
+        "EnableAnalyzersSupport": true,
+        "EnableDecompilationSupport": true
+    }
+}
