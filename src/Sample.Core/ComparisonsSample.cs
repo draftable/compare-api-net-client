@@ -104,11 +104,16 @@ namespace Sample.Core
                                                Comparisons client,
                                                Func<Comparisons, Comparison> createCore)
         {
+            label = $"[{label}]";
+            var prefix = new string(' ', label.Length);
+
             var comparison = createCore(client);
             var cid = comparison.Identifier;
 
-            Console.WriteLine(
-                $"[{label}] Comparison ID: {cid}, isReady: {comparison.Ready}, Public URL: {client.PublicViewerURL(cid)}, Signed URL: {client.SignedViewerURL(cid)}");
+            Console.WriteLine($"{label} Comparison ID: {cid}");
+            Console.WriteLine($"{prefix} isReady: {comparison.Ready}");
+            Console.WriteLine($"{prefix} Public URL: {client.PublicViewerURL(cid)}");
+            Console.WriteLine($"{prefix} Signed URL: {client.SignedViewerURL(cid)}");
 
             var timeoutCount = 0;
             while (!comparison.Ready)
@@ -123,8 +128,10 @@ namespace Sample.Core
                 timeoutCount++;
             }
 
-            Console.WriteLine(
-                $"[{label}] Comparison ID: {cid}, isReady: {comparison.Ready}, Failed: {HasFailed(comparison)}, Error: {comparison.ErrorMessage}");
+            Console.WriteLine($"{label} Comparison ID: {cid}");
+            Console.WriteLine($"{prefix} isReady: {comparison.Ready}");
+            Console.WriteLine($"{prefix} Failed: {HasFailed(comparison)}");
+            Console.WriteLine($"{prefix} Error: {comparison.ErrorMessage}");
 
             return cid;
         }
