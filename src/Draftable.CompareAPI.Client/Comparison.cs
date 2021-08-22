@@ -11,173 +11,120 @@ using Newtonsoft.Json;
 namespace Draftable.CompareAPI.Client
 {
     /// <summary>
-    ///     Represents a comparison created via the Draftable API.
+    ///     A comparison in the Draftable API.
     /// </summary>
     [PublicAPI]
     [DataContract(Name = "comparison")]
     public class Comparison
     {
         /// <summary>
-        ///     Represents one side of a comparison created via the Draftable API.
+        ///     The unique identifier of the comparison.
         /// </summary>
-        [PublicAPI]
-        [DataContract(Name = "side")]
-        public class Side
-        {
-            /// <summary>
-            ///     The type of the file, given as the file extension.
-            /// </summary>
-            [DataMember(Name = "file_type")]
-            [NotNull]
-            public string FileType { get; private set; }
-
-            /// <summary>
-            ///     If the file was provided by URL, gives the source URL for the file.
-            /// </summary>
-            /// <remarks>
-            ///     If the file was uploaded, this will be <langword>null</langword>.
-            /// </remarks>
-            [DataMember(Name = "source_url")]
-            [CanBeNull]
-            public string SourceURL { get; private set; }
-
-            /// <summary>
-            ///     The display name for the side, if one was provided.
-            /// </summary>
-            /// <remarks>
-            ///     Will be <langword>null</langword> if no display name was provided.
-            /// </remarks>
-            [DataMember(Name = "display_name")]
-            [CanBeNull]
-            public string DisplayName { get; private set; }
-
-            /// <summary>
-            ///     Creates a <see cref="Side" /> object representing one side of a comparison.
-            /// </summary>
-            /// <param name="fileType">The type of the file, given as the file extension.</param>
-            /// <param name="sourceURL">The source URL for the file, if it was provided by URL (as opposed to uploaded).</param>
-            /// <param name="displayName">The display name for the side, or <langword>null</langword> for no display name.</param>
-            public Side([NotNull] string fileType, [CanBeNull] string sourceURL, [CanBeNull] string displayName)
-            {
-                FileType = fileType ?? throw new ArgumentNullException(nameof(fileType));
-                SourceURL = sourceURL;
-                DisplayName = displayName;
-            }
-
-            [Pure]
-            [NotNull]
-            public override string ToString()
-            {
-                return JsonConvert.SerializeObject(this, Formatting.Indented,
-                                                   new JsonSerializerSettings
-                                                   {
-                                                       NullValueHandling = NullValueHandling.Ignore
-                                                   }).AssertNotNull();
-            }
-        }
-
-
-        /// <summary>
-        ///     The comparison's string identifier.
-        /// </summary>
-        /// <remarks>
-        ///     The <see cref="Identifier" /> uniquely identifies a comparison within your account.
-        /// </remarks>
         [DataMember(Name = "identifier")]
         [NotNull]
         public string Identifier { get; private set; }
 
         /// <summary>
-        ///     Information about the left side of the comparison.
+        ///     A <see cref="Side" /> instance representing the left side of the comparison.
         /// </summary>
         [DataMember(Name = "left")]
         [NotNull]
         public Side Left { get; private set; }
 
         /// <summary>
-        ///     Information about the right side of the comparison.
+        ///     A <see cref="Side" /> instance representing the right side of the comparison.
         /// </summary>
         [DataMember(Name = "right")]
         [NotNull]
         public Side Right { get; private set; }
 
         /// <summary>
-        ///     Whether the comparison is publically accessible, or requires authorization to view.
+        ///     Indicates if the comparison is public.
         /// </summary>
         [DataMember(Name = "public")]
         public bool IsPublic { get; private set; }
 
         /// <summary>
-        ///     When the comparison was first created.
+        ///     The timestamp for when the comparison was created.
         /// </summary>
         [DataMember(Name = "creation_time")]
         public DateTime CreationTime { get; private set; }
 
         /// <summary>
-        ///     When the comparison will expire and be automatically deleted, or <langword>null</langword> for no expiry.
+        ///     If an expiry time was set, the timestamp when the comparison will expire, otherwise <see langword="null" />.
         /// </summary>
         [DataMember(Name = "expiry_time")]
         [CanBeNull]
         public DateTime? ExpiryTime { get; private set; }
 
         /// <summary>
-        ///     Whether the comparison is ready - i.e. whether the comparison has been processed and is ready for display.
+        ///     Indicates if the comparison is ready (i.e. processing has been completed). To check if processing was successful
+        ///     inspect the <see cref="Failed" /> property.
         /// </summary>
         [IgnoreDataMember]
         public bool Ready => ReadyTime.HasValue;
 
         /// <summary>
-        ///     If the comparison is <see cref="Ready" />, gives the time at which it became ready.
+        ///     If the comparison is <see cref="Ready" />, the timestamp when the comparison become ready, otherwise
+        ///     <see langword="null" />.
         /// </summary>
-        /// <remarks>
-        ///     Will be <langword>null</langword> if the comparison is not <see cref="Ready" />.
-        /// </remarks>
         [DataMember(Name = "ready_time")]
         [CanBeNull]
         public DateTime? ReadyTime { get; private set; }
 
         /// <summary>
-        ///     If the comparison is <see cref="Ready" />, indicates whether the comparison failed.
+        ///     If the comparison is <see cref="Ready" />, indicates if processing failed, otherwise <see langword="null" />.
         /// </summary>
-        /// <remarks>
-        ///     Will be <langword>null</langword> if the comparison is not <see cref="Ready" />.
-        /// </remarks>
         [DataMember(Name = "failed")]
         [CanBeNull]
         public bool? Failed { get; private set; }
 
         /// <summary>
-        ///     If the comparison <see cref="Failed" />, an error message describing the failure.
+        ///     If the comparison <see cref="Failed" />, an error message which describes the failure, otherwise
+        ///     <see langword="null" />.
         /// </summary>
-        /// <remarks>
-        ///     Will be <langword>null</langword> if the comparison has not <see cref="Failed" />.
-        /// </remarks>
         [DataMember(Name = "error_message")]
         [CanBeNull]
         public string ErrorMessage { get; private set; }
 
         /// <summary>
-        ///     Creates a <see cref="Comparison" /> object representing a comparison.
+        ///     Creates a <see cref="Comparison" /> instance representing a comparison.
         /// </summary>
-        /// <param name="identifier">The comparison's string identifier.</param>
-        /// <param name="left">A <see cref="Side" /> object representing the left side of the comparison.</param>
-        /// <param name="right">A <see cref="Side" /> object representing the right side of the comparison.</param>
-        /// <param name="isPublic">Whether the comparison is public or not.</param>
-        /// <param name="creationTime">When the comparison was created.</param>
-        /// <param name="expiryTime">When the comparison will expire, if an expiry time is set.</param>
-        /// <param name="readyTime">
-        ///     If the comparison is ready, the time at which it became ready, otherwise
-        ///     <langword>null</langword>.
+        /// <param name="identifier">
+        ///     The unique identifier of the comparison.
         /// </param>
-        /// <param name="failed">If the comparison is ready, whether the comparison failed.</param>
-        /// <param name="errorMessage">If the comparison failed, an error message describing the failure.</param>
+        /// <param name="left">
+        ///     A <see cref="Side" /> instance representing the left side of the comparison.
+        /// </param>
+        /// <param name="right">
+        ///     A <see cref="Side" /> instance representing the right side of the comparison.
+        /// </param>
+        /// <param name="isPublic">
+        ///     Indicates if the comparison is public.
+        /// </param>
+        /// <param name="creationTime">
+        ///     The timestamp for when the comparison was created.
+        /// </param>
+        /// <param name="expiryTime">
+        ///     If an expiry time was set, the timestamp when the comparison will expire, otherwise <see langword="null" />.
+        /// </param>
+        /// <param name="readyTime">
+        ///     If the comparison is ready, the timestamp when the comparison become ready, otherwise <see langword="null" />.
+        /// </param>
+        /// <param name="failed">
+        ///     If the comparison is ready, indicates if processing failed, otherwise <see langword="null" />.
+        /// </param>
+        /// <param name="errorMessage">
+        ///     If the comparison <see paramref="failed" />, an error message which describes the failure, otherwise
+        ///     <see langword="null" />.
+        /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     If the comparison is ready, <paramref name="failed" /> must be non-null.
-        ///     If not ready, <paramref name="failed" /> must be null.
+        ///     If the comparison is ready, <paramref name="failed" /> must not be <see langword="null" />. Otherwise,
+        ///     <paramref name="failed" /> must be <see langword="null" />.
         /// </exception>
         /// <exception cref="ArgumentOutOfRangeException">
-        ///     If the comparison has <paramref name="failed" /> then
-        ///     <paramref name="errorMessage" /> must be non-null. Otherwise, <paramref name="errorMessage" /> must be null.
+        ///     If the comparison <paramref name="failed" />, then <paramref name="errorMessage" /> must not be
+        ///     <see langword="null" />. Otherwise, <paramref name="errorMessage" /> must be <see langword="null" />.
         /// </exception>
         public Comparison([NotNull] string identifier,
                           [NotNull] Side left,
@@ -203,46 +150,95 @@ namespace Draftable.CompareAPI.Client
             {
                 if (!failed.HasValue)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(failed), failed,
-                                                          "If the comparison is ready, `failed` cannot be null.");
+                    throw new ArgumentOutOfRangeException(nameof(failed),
+                                                          "The failed parameter must not be null if readyTime is not null.");
                 }
             }
-            else
+            else if (failed.HasValue)
             {
-                if (failed.HasValue)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(failed), failed,
-                                                          "If the comparison isn't ready, `failed` must be null.");
-                }
+                throw new ArgumentOutOfRangeException(nameof(failed), failed,
+                                                      "The failed parameter must be null if readyTime is null.");
             }
 
-            if (failed.HasValue && failed.Value)
+            if (errorMessage == null)
             {
-                if (errorMessage == null)
+                if (failed.HasValue && failed.Value)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(errorMessage), errorMessage,
-                                                          "If the comparison has failed, `errorMessage` cannot be null.");
+                    throw new ArgumentOutOfRangeException(nameof(errorMessage),
+                                                          "The errorMessage parameter must not be null if failed is true.");
                 }
             }
-            else
+            else if (!failed.HasValue || !failed.Value)
             {
-                if (errorMessage != null)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(errorMessage), errorMessage,
-                                                          "If the comparison hasn't failed, `errorMessage` must be null.");
-                }
+                throw new ArgumentOutOfRangeException(nameof(errorMessage), errorMessage,
+                                                      "The errorMessage parameter must be null if failed is false or null.");
             }
         }
 
         [Pure]
-        [NotNull]
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented,
-                                               new JsonSerializerSettings
-                                               {
-                                                   NullValueHandling = NullValueHandling.Ignore
-                                               }).AssertNotNull();
+            var settings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+
+            return JsonConvert.SerializeObject(this, Formatting.Indented, settings).AssertNotNull();
+        }
+
+
+        /// <summary>
+        ///     A side of a comparison in the Draftable API.
+        /// </summary>
+        [PublicAPI]
+        [DataContract(Name = "side")]
+        public class Side
+        {
+            /// <summary>
+            ///     The type of the file, provided as a file extension (e.g. "pdf").
+            /// </summary>
+            [DataMember(Name = "file_type")]
+            [NotNull]
+            public string FileType { get; private set; }
+
+            /// <summary>
+            ///     The source URL of the file if one was provided, otherwise <see langword="null" />.
+            /// </summary>
+            [DataMember(Name = "source_url")]
+            [CanBeNull]
+            public string SourceURL { get; private set; }
+
+            /// <summary>
+            ///     The display name for the side if one was provided, otherwise <see langword="null" />.
+            /// </summary>
+            [DataMember(Name = "display_name")]
+            [CanBeNull]
+            public string DisplayName { get; private set; }
+
+            /// <summary>
+            ///     Creates a <see cref="Side" /> instance representing a side of a comparison.
+            /// </summary>
+            /// <param name="fileType">
+            ///     The type of the file, provided as a file extension (e.g. "pdf").
+            /// </param>
+            /// <param name="sourceURL">
+            ///     The source URL of the file, if the file content is not being provided in the request, otherwise
+            ///     <see langword="null" />.
+            /// </param>
+            /// <param name="displayName">
+            ///     The display name for the side or <see langword="null" /> for no display name.
+            /// </param>
+            public Side([NotNull] string fileType, [CanBeNull] string sourceURL, [CanBeNull] string displayName)
+            {
+                FileType = fileType ?? throw new ArgumentNullException(nameof(fileType));
+                SourceURL = sourceURL;
+                DisplayName = displayName;
+            }
+
+            [Pure]
+            public override string ToString()
+            {
+                var settings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+
+                return JsonConvert.SerializeObject(this, Formatting.Indented, settings).AssertNotNull();
+            }
         }
     }
 }

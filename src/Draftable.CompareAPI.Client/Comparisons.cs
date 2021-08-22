@@ -39,7 +39,7 @@ namespace Draftable.CompareAPI.Client
     {
         #region Public interface
 
-        #region Read-only properties: AccountId, AuthToken
+        #region Read-only properties
 
         /// <summary>
         ///     The unique identifier for the API user's testing or live account.
@@ -55,7 +55,7 @@ namespace Draftable.CompareAPI.Client
         [NotNull]
         public string AuthToken { get; }
 
-        #endregion Read-only properties: AccountId, AuthToken
+        #endregion Read-only properties
 
         #region Constructors
 
@@ -63,7 +63,9 @@ namespace Draftable.CompareAPI.Client
         ///     Construct a new <see cref="Comparisons" /> API client for the given credentials, connecting to Draftable cloud
         ///     compare service.
         /// </summary>
-        /// <param name="accountId">The unique identifier for the API user's testing or live account.</param>
+        /// <param name="accountId">
+        ///     The unique identifier for the API user's testing or live account.
+        /// </param>
         /// <param name="authToken">
         ///     The corresponding private authorization token, associated with the API user's testing or live
         ///     account.
@@ -128,7 +130,7 @@ namespace Draftable.CompareAPI.Client
 
         #endregion Constructors
 
-        #region Exceptions: RequestExceptionBase, NotFoundException, BadRequestException, InvalidCredentialsException, UnknownResponseException
+        #region Exceptions
 
         /// <summary>
         ///     Base class for exceptions raised by <see cref="Comparisons" /> following API requests.
@@ -140,27 +142,6 @@ namespace Draftable.CompareAPI.Client
                 message, innerException) { }
 
             protected RequestExceptionBase([NotNull] string message) : base(message) { }
-        }
-
-
-        /// <summary>
-        ///     Thrown for HTTP 404 ("not found"). Indicates that no comparison with the given identifier exists.
-        /// </summary>
-        [PublicAPI]
-        public class NotFoundException : RequestExceptionBase
-        {
-            private NotFoundException([NotNull] RestApiClient.UnexpectedResponseException ex) :
-                base("Comparison not found.", ex)
-            {
-                Debug.Assert(ex.ResponseHttpStatusCode == HttpStatusCode.NotFound);
-            }
-
-            [Pure]
-            [CanBeNull]
-            internal static RequestExceptionBase For([NotNull] RestApiClient.UnexpectedResponseException ex)
-            {
-                return ex.ResponseHttpStatusCode == HttpStatusCode.NotFound ? new NotFoundException(ex) : null;
-            }
         }
 
 
@@ -188,26 +169,24 @@ namespace Draftable.CompareAPI.Client
             [NotNull]
             private static string MessageFor([NotNull] RestApiClient.UnexpectedResponseException ex)
             {
-                if (!string.IsNullOrEmpty(ex.ResponseContent))
-                {
-                    string errorDetails;
-                    try
-                    {
-                        errorDetails =
-                            JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent),
-                                                        Formatting.Indented);
-                    }
-                    catch
-                    {
-                        errorDetails = ex.ResponseContent;
-                    }
-
-                    return $"Bad request - invalid parameters were provided. Details:\n{errorDetails}";
-                }
-                else
+                if (string.IsNullOrEmpty(ex.ResponseContent))
                 {
                     return "Bad request - ensure that the parameters are valid.";
                 }
+
+                string errorDetails;
+                try
+                {
+                    errorDetails =
+                        JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent),
+                                                    Formatting.Indented);
+                }
+                catch
+                {
+                    errorDetails = ex.ResponseContent;
+                }
+
+                return $"Bad request - invalid parameters were provided. Details:\n{errorDetails}";
             }
 
             [Pure]
@@ -237,27 +216,25 @@ namespace Draftable.CompareAPI.Client
             [NotNull]
             private static string MessageFor([NotNull] RestApiClient.UnexpectedResponseException ex)
             {
-                if (!string.IsNullOrEmpty(ex.ResponseContent))
-                {
-                    string errorDetails;
-                    try
-                    {
-                        errorDetails =
-                            JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent),
-                                                        Formatting.Indented);
-                    }
-                    catch
-                    {
-                        errorDetails = ex.ResponseContent;
-                    }
-
-                    return $"Invalid authorization credentials. Details:\n{errorDetails}";
-                }
-                else
+                if (string.IsNullOrEmpty(ex.ResponseContent))
                 {
                     return
                         "Invalid authorization credentials. Please check your account ID and auth token were provided correctly.";
                 }
+
+                string errorDetails;
+                try
+                {
+                    errorDetails =
+                        JsonConvert.SerializeObject(JsonConvert.DeserializeObject(ex.ResponseContent),
+                                                    Formatting.Indented);
+                }
+                catch
+                {
+                    errorDetails = ex.ResponseContent;
+                }
+
+                return $"Invalid authorization credentials. Details:\n{errorDetails}";
             }
 
             [Pure]
@@ -268,6 +245,27 @@ namespace Draftable.CompareAPI.Client
                        ex.ResponseHttpStatusCode == HttpStatusCode.Unauthorized
                     ? new InvalidCredentialsException(ex)
                     : null;
+            }
+        }
+
+
+        /// <summary>
+        ///     Thrown for HTTP 404 ("not found"). Indicates that no comparison with the given identifier exists.
+        /// </summary>
+        [PublicAPI]
+        public class NotFoundException : RequestExceptionBase
+        {
+            private NotFoundException([NotNull] RestApiClient.UnexpectedResponseException ex) :
+                base("Comparison not found.", ex)
+            {
+                Debug.Assert(ex.ResponseHttpStatusCode == HttpStatusCode.NotFound);
+            }
+
+            [Pure]
+            [CanBeNull]
+            internal static RequestExceptionBase For([NotNull] RestApiClient.UnexpectedResponseException ex)
+            {
+                return ex.ResponseHttpStatusCode == HttpStatusCode.NotFound ? new NotFoundException(ex) : null;
             }
         }
 
@@ -300,17 +298,7 @@ namespace Draftable.CompareAPI.Client
 
             internal UnknownResponseException([NotNull] string responseContent,
                                               [NotNull] string message,
-                                              [NotNull] JsonException ex)
-                : base(
-                    $"{message}\nA deserialization error indicates an issue in this client library, or the comparison API. Contact support@draftable.com for assistance, or open an issue on GitHub.",
-                    ex)
-            {
-                ResponseContent = responseContent;
-            }
-
-            internal UnknownResponseException([NotNull] string responseContent,
-                                              [NotNull] string message,
-                                              [NotNull] NullReferenceException ex)
+                                              [NotNull] Exception ex)
                 : base(
                     $"{message}\nA deserialization error indicates an issue in this client library, or the comparison API. Contact support@draftable.com for assistance, or open an issue on GitHub.",
                     ex)
@@ -319,7 +307,7 @@ namespace Draftable.CompareAPI.Client
             }
         }
 
-        #endregion Exceptions: RequestExceptionBase, NotFoundException, BadRequestException, InvalidCredentialsException, UnknownResponseException
+        #endregion Exceptions
 
         #region Get[Async], GetAll[Async]
 
@@ -758,7 +746,7 @@ namespace Draftable.CompareAPI.Client
                 ValidateFileType(_fileType);
                 _displayName = displayName;
 
-                if (!CheckForHttpOrHttpsURL(_sourceURL))
+                if (!ValidateSourceUrlScheme(_sourceURL))
                 {
                     throw new ArgumentOutOfRangeException(nameof(sourceURL), sourceURL,
                                                           "`sourceURL` could not be parsed as an absolute HTTP or HTTPS URL.");
@@ -1066,25 +1054,40 @@ namespace Draftable.CompareAPI.Client
         /// <summary>
         ///     Runs an export of given kind, for a given existing comparison
         /// </summary>
-        /// <param name="comparisonIdentifier">The unique identifier of the comparison to export</param>
-        /// <param name="exportKind">Export kind. Supported values: single_page, combined, left, right.</param>
-        /// <returns>An <see cref="Export" /> object giving metadata about the newly created export.</returns>
-        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
-        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
-        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        /// <param name="comparisonIdentifier">
+        ///     The unique identifier of the comparison to export
+        /// </param>
+        /// <param name="exportKind">
+        ///     Export kind. Supported values: single_page, combined, left, right.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="Export" /> object giving metadata about the newly created export.
+        /// </returns>
+        /// <exception cref="BadRequestException">
+        ///     One or more given parameters were invalid.
+        /// </exception>
+        /// <exception cref="InvalidCredentialsException">
+        ///     You have provided invalid credentials.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        ///     Unable to perform the request.
+        /// </exception>
         [PublicAPI]
         [Pure]
         [NotNull]
         public Export RunExport([NotNull] string comparisonIdentifier, string exportKind)
         {
             ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
+
             try
             {
                 var inputData = new Dictionary<string, string>
                 {
                     {"comparison", comparisonIdentifier}, {"kind", exportKind}
                 };
+
                 var exportJson = _client.Post(_urls.Exports, data: inputData);
+
                 return SerializationUtils.DeserializeExport(exportJson);
             }
             catch (RestApiClient.UnexpectedResponseException ex)
@@ -1097,13 +1100,27 @@ namespace Draftable.CompareAPI.Client
         /// <summary>
         ///     Runs an export of given kind, for a given existing comparison
         /// </summary>
-        /// <param name="comparisonIdentifier">The unique identifier of the comparison to export</param>
-        /// <param name="exportKind">Export kind. Supported values: single_page, combined, left, right.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> for cancelling the operation.</param>
-        /// <returns>An <see cref="Export" /> object giving metadata about the newly created export.</returns>
-        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
-        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
-        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        /// <param name="comparisonIdentifier">
+        ///     The unique identifier of the comparison to export
+        /// </param>
+        /// <param name="exportKind">
+        ///     Export kind. Supported values: single_page, combined, left, right.
+        /// </param>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> for cancelling the operation.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="Export" /> object giving metadata about the newly created export.
+        /// </returns>
+        /// <exception cref="BadRequestException">
+        ///     One or more given parameters were invalid.
+        /// </exception>
+        /// <exception cref="InvalidCredentialsException">
+        ///     You have provided invalid credentials.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        ///     Unable to perform the request.
+        /// </exception>
         [PublicAPI]
         [Pure]
         [NotNull]
@@ -1112,14 +1129,17 @@ namespace Draftable.CompareAPI.Client
                                                  CancellationToken cancellationToken)
         {
             ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
+
             try
             {
                 var inputData = new Dictionary<string, string>
                 {
                     {"comparison", comparisonIdentifier}, {"kind", exportKind}
                 };
+
                 var exportJson =
                     await _client.PostAsync(_urls.Exports, data: inputData, cancellationToken: cancellationToken);
+
                 return SerializationUtils.DeserializeExport(exportJson);
             }
             catch (RestApiClient.UnexpectedResponseException ex)
@@ -1132,11 +1152,21 @@ namespace Draftable.CompareAPI.Client
         /// <summary>
         ///     Gets an existing Export, of given identifier.
         /// </summary>
-        /// <param name="exportIdentifier">The unique identifier of the Export to access. </param>
-        /// <returns>An <see cref="Export" /> object giving metadata about the export accessed</returns>
-        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
-        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
-        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        /// <param name="exportIdentifier">
+        ///     The unique identifier of the Export to access.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="Export" /> object giving metadata about the export accessed
+        /// </returns>
+        /// <exception cref="BadRequestException">
+        ///     One or more given parameters were invalid.
+        /// </exception>
+        /// <exception cref="InvalidCredentialsException">
+        ///     You have provided invalid credentials.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        ///     Unable to perform the request.
+        /// </exception>
         [PublicAPI]
         [Pure]
         [NotNull]
@@ -1145,6 +1175,7 @@ namespace Draftable.CompareAPI.Client
             try
             {
                 var exportJson = _client.Get(_urls.Export(exportIdentifier));
+
                 return SerializationUtils.DeserializeExport(exportJson);
             }
             catch (RestApiClient.UnexpectedResponseException ex)
@@ -1157,13 +1188,24 @@ namespace Draftable.CompareAPI.Client
         /// <summary>
         ///     Gets an existing Export, of given identifier.
         /// </summary>
-        /// <param name="exportIdentifier">The unique identifier of the Export to access.</param>
-        /// ///
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> for cancelling the operation.</param>
-        /// <returns>An <see cref="Export" /> object giving metadata about the export accessed</returns>
-        /// <exception cref="BadRequestException">One or more given parameters were invalid.</exception>
-        /// <exception cref="InvalidCredentialsException">You have provided invalid credentials.</exception>
-        /// <exception cref="HttpRequestException">Unable to perform the request.</exception>
+        /// <param name="exportIdentifier">
+        ///     The unique identifier of the Export to access.
+        /// </param>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> for cancelling the operation.
+        /// </param>
+        /// <returns>
+        ///     An <see cref="Export" /> object giving metadata about the export accessed
+        /// </returns>
+        /// <exception cref="BadRequestException">
+        ///     One or more given parameters were invalid.
+        /// </exception>
+        /// <exception cref="InvalidCredentialsException">
+        ///     You have provided invalid credentials.
+        /// </exception>
+        /// <exception cref="HttpRequestException">
+        ///     Unable to perform the request.
+        /// </exception>
         [PublicAPI]
         [Pure]
         [NotNull]
@@ -1172,6 +1214,7 @@ namespace Draftable.CompareAPI.Client
             try
             {
                 var exportJson = await _client.GetAsync(_urls.Export(exportIdentifier), cancellationToken);
+
                 return SerializationUtils.DeserializeExport(exportJson);
             }
             catch (RestApiClient.UnexpectedResponseException ex)
@@ -1186,7 +1229,7 @@ namespace Draftable.CompareAPI.Client
         #region Dispose
 
         [NotNull] private readonly object _disposeLock = new object();
-        private bool _disposed = false;
+        private bool _disposed;
 
         public void Dispose()
         {
@@ -1237,11 +1280,7 @@ namespace Draftable.CompareAPI.Client
 
         #region Private fields and helpers
 
-        #region Fields: _client
-
         [NotNull] private readonly RestApiClient _client;
-
-        #endregion Fields: _client
 
         #region URLs
 
@@ -1274,73 +1313,22 @@ namespace Draftable.CompareAPI.Client
 
         #endregion URLs
 
-        #region SerializeDateTime
-
-        /// <summary>
-        ///     Serializes a given <see cref="DateTime" /> in ISO format.
-        /// </summary>
-        /// <remarks>Returns <langword>null</langword> if the given value is <langword>null</langword>.</remarks>
-        /// <param name="dateTime">An optional <see cref="DateTime" /> to serialize in ISO format.</param>
-        /// <returns>
-        ///     <paramref name="dateTime" /> serialized in ISO format, or <langword>null</langword> if
-        ///     <paramref name="dateTime" /> is <langword>null</langword>.
-        /// </returns>
-        [Pure]
-        [CanBeNull]
-        [ContractAnnotation("dateTime:null => null; dateTime:notnull => notnull")]
-        private static string SerializeDateTime([CanBeNull] DateTime? dateTime)
-        {
-            return dateTime?.ToUniversalTime().ToString("o");
-        }
-
-        #endregion SerializeDateTime
-
-        #region DeserializeComparison, DeserializeComparisonArray
-
-        /// <exception cref="UnknownResponseException">Unable to parse the response as a comparison.</exception>
-        [Pure]
-        [NotNull]
-        private static Comparison DeserializeComparison([NotNull] string jsonComparison)
-        {
-            try
-            {
-                return JsonConvert.DeserializeObject<Comparison>(jsonComparison).AssertNotNull();
-            }
-            catch (JsonException ex)
-            {
-                throw new UnknownResponseException(jsonComparison, "Unable to parse the response as a comparison.", ex);
-            }
-            catch (NullReferenceException ex)
-            {
-                throw new UnknownResponseException(jsonComparison, "Unable to parse the response as a comparison.", ex);
-            }
-        }
-
+        #region Serialization
 
         [DataContract]
         [Serializable]
         private class AllComparisonsResult
         {
-            /*
-            // Unnecessary fields
-            [DataMember(Name="count")]
-            public int Count { get; private set; }
-
-            [DataMember(Name="limit"), CanBeNull]
-            public int? Limit { get; private set; }
-
-            [DataMember(Name="offset")]
-            public int Offset { get; private set; }
-            */
-
-            // ReSharper disable once NotNullMemberIsNotInitialized
             [DataMember(Name = "results")]
             [NotNull]
+            // ReSharper disable once NotNullMemberIsNotInitialized
             public List<Comparison> Results { get; private set; }
         }
 
 
-        /// <exception cref="UnknownResponseException">Unable to parse the response as a series of comparisons.</exception>
+        /// <exception cref="UnknownResponseException">
+        ///     Unable to parse the response and extract the array of comparison results.
+        /// </exception>
         [Pure]
         [NotNull]
         private static List<Comparison> DeserializeAllComparisons([NotNull] string jsonComparisonArray)
@@ -1350,13 +1338,7 @@ namespace Draftable.CompareAPI.Client
                 return JsonConvert.DeserializeObject<AllComparisonsResult>(jsonComparisonArray).AssertNotNull().Results
                                   .AssertNotNull();
             }
-            catch (JsonException ex)
-            {
-                throw new UnknownResponseException(jsonComparisonArray,
-                                                   "Unable to parse the response and extract the array of comparison results.",
-                                                   ex);
-            }
-            catch (NullReferenceException ex)
+            catch (Exception ex) when (ex is JsonException || ex is NullReferenceException)
             {
                 throw new UnknownResponseException(jsonComparisonArray,
                                                    "Unable to parse the response and extract the array of comparison results.",
@@ -1364,142 +1346,131 @@ namespace Draftable.CompareAPI.Client
             }
         }
 
-        #endregion DeserializeComparison, DeserializeComparisonArray
-
-        #region CheckForHttpOrHttpsURL
-
+        /// <exception cref="UnknownResponseException">
+        ///     Unable to parse the response as a comparison.
+        /// </exception>
         [Pure]
-        private static bool CheckForHttpOrHttpsURL([NotNull] string url)
+        [NotNull]
+        private static Comparison DeserializeComparison([NotNull] string jsonComparison)
         {
-            Uri uri;
-            if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+            try
             {
-                return false;
+                return JsonConvert.DeserializeObject<Comparison>(jsonComparison).AssertNotNull();
             }
-
-            var scheme = uri.Scheme.ToLowerInvariant();
-            if (scheme != "http" && scheme != "https")
+            catch (Exception ex) when (ex is JsonException || ex is NullReferenceException)
             {
-                return false;
-            }
-
-            return true;
-        }
-
-        #endregion CheckForHttpOrHttpsURL
-
-        #region ValidateAccountId, ValidateAuthToken
-
-        private static void ValidateAccountId([NotNull] string accountId)
-        {
-            Debug.Assert(accountId != null);
-
-            if (string.IsNullOrWhiteSpace(accountId))
-            {
-                throw new ArgumentOutOfRangeException(nameof(accountId), accountId,
-                                                      "`accountId` must not have whitespace, and must be a non-empty string.");
-            }
-
-            if (accountId.Any(char.IsWhiteSpace))
-            {
-                throw new ArgumentOutOfRangeException(nameof(accountId), accountId,
-                                                      "`accountId` cannot contain whitespace.");
-            }
-
-            if (accountId.Any(c => !char.IsLetterOrDigit(c) && c != '-'))
-            {
-                throw new ArgumentOutOfRangeException(nameof(accountId), accountId,
-                                                      "`accountId` cannot contain characters that aren't alphanumeric or a dash ('-').");
+                throw new UnknownResponseException(jsonComparison, "Unable to parse the response as a comparison.", ex);
             }
         }
 
-        private static void ValidateAuthToken([NotNull] string authToken)
+        /// <summary>
+        ///     Serializes a given <see cref="DateTime" /> in ISO format.
+        /// </summary>
+        /// <param name="dateTime">
+        ///     An optional <see cref="DateTime" /> to serialize in ISO format.
+        /// </param>
+        /// <returns>
+        //      If a <paramref name="dateTime" /> was provided, its serialized representation in ISO format, otherwise <see langword="null" />.
+        /// </returns>
+        [Pure]
+        [CanBeNull]
+        [ContractAnnotation("dateTime:null => null; dateTime:notnull => notnull")]
+        private static string SerializeDateTime([CanBeNull] DateTime? dateTime)
         {
-            Debug.Assert(authToken != null);
+            return dateTime?.ToUniversalTime().ToString("o");
+        }
 
-            if (!authToken.All(char.IsLetterOrDigit))
+        #endregion Serialization
+
+        #region Validation
+
+        private const int identifierLengthMin = 1;
+        private const int identifierLengthMax = 1024;
+
+        [NotNull] private static readonly HashSet<string> _allowedFileTypes = new HashSet<string>
+        {
+            "doc", // Word 97-2003 Document
+            "docm", // Word Macro-Enabled Document
+            "docx", // Word Document
+            "pdf", // Portable Document Format
+            "ppt", // PowerPoint 97-2003 Presentation
+            "pptm", // PowerPoint Macro-Enabled Presentation
+            "pptx", // PowerPoint Presentation
+            "rtf" // Rich Text Format
+        };
+
+        private static readonly string _allowedFileTypesString = string.Join(", ", _allowedFileTypes.OrderBy(x => x));
+
+        private readonly URLs _urls;
+
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Invalid value for comparison <paramref name="expires">expiry</paramref>.
+        /// </exception>
+        private static void ValidateExpires(TimeSpan? expires)
+        {
+            if (expires.HasValue && expires.Value.TotalSeconds <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(authToken), authToken,
-                                                      "`authToken` can only contain alphanumeric characters.");
+                throw new ArgumentOutOfRangeException(nameof(expires), expires.Value,
+                                                      "The comparison expiry time must be in the future.");
             }
         }
 
-        #endregion ValidateAccountId, ValidateAuthToken
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Invalid value for comparison side <paramref name="fileType">file type</paramref>.
+        /// </exception>
+        private static void ValidateFileType([NotNull] string fileType)
+        {
+            Debug.Assert(fileType != null);
 
-        #region ValidateIdentifier, ValidateFileType, ValidateExpires
+#pragma warning disable CA1308
+            if (!_allowedFileTypes.Contains(fileType.ToLowerInvariant())) // Normalizing to lowercase is fine
+#pragma warning restore CA1308
+            {
+                throw new ArgumentOutOfRangeException(nameof(fileType), fileType,
+                                                      $"An unsupported comparison side file type was specified. Supported types: {_allowedFileTypesString}");
+            }
+        }
 
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="identifier" /> has an invalid value.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        ///     Invalid value for comparison <paramref name="identifier" />.
+        /// </exception>
         private static void ValidateIdentifier([NotNull] string identifier)
         {
             Debug.Assert(identifier != null);
 
-            const int minimumIdentifierLength = 1;
-            const int maximumIdentifierLength = 1024;
-
-            if (identifier.Length < minimumIdentifierLength)
+            if (identifier.Length < identifierLengthMin)
             {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier,
-                                                      $"`identifier` must have at least {minimumIdentifierLength} characters.");
+                                                      $"Comparison identifier must be at least {identifierLengthMin} characters.");
             }
 
-            if (identifier.Length > maximumIdentifierLength)
+            if (identifier.Length > identifierLengthMax)
             {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier,
-                                                      $"`identifier` can have at most {maximumIdentifierLength} characters.");
+                                                      $"Comparison identifier must be at most {identifierLengthMax} characters.");
             }
 
             if (identifier.Any(c => (c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') &&
                                     !"-._".Contains(c)))
             {
                 throw new ArgumentOutOfRangeException(nameof(identifier), identifier,
-                                                      "`identifier` can only contain ASCII letters, numbers, and the characters \"-._\"");
+                                                      "Comparison identifier can only contain ASCII letters, numbers, and the \"-._\" characters.");
             }
         }
 
-        [NotNull] private static readonly HashSet<string> _allowedLowercaseFileTypes = new HashSet<string>
+        [Pure]
+        private static bool ValidateSourceUrlScheme([NotNull] string url)
         {
-            // PDFs
-            "pdf",
-            // Word documents
-            "docx",
-            "docm",
-            "doc",
-            "rtf",
-            // PowerPoint presentations
-            "pptx",
-            "pptm",
-            "ppt"
-        };
-
-        private URLs _urls;
-
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="fileType" /> has an invalid value.</exception>
-        private static void ValidateFileType([NotNull] string fileType)
-        {
-            Debug.Assert(fileType != null);
-
-            if (!_allowedLowercaseFileTypes.Contains(fileType.ToLowerInvariant()))
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
             {
-                throw new ArgumentOutOfRangeException(nameof(fileType), fileType,
-                                                      $"`fileType` must be one of the allowed file types ({string.Join(", ", _allowedLowercaseFileTypes.OrderBy(x => x))}).");
+                return false;
             }
+
+            var scheme = uri.Scheme.ToUpperInvariant();
+            return scheme == "HTTP" || scheme == "HTTPS";
         }
 
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="expires" /> has an invalid value.</exception>
-        private static void ValidateExpires(TimeSpan? expires)
-        {
-            // ReSharper disable once UseNullPropagation
-            if (expires.HasValue)
-            {
-                if (expires.Value.TotalSeconds <= 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(expires), expires.Value,
-                                                          "`expires` must be a positive TimeSpan - comparisons cannot expire immediately, or in the past.");
-                }
-            }
-        }
-
-        #endregion ValidateIdentifier, ValidateFileType, ValidateExpires
+        #endregion Validation
 
         #endregion Private fields and helpers
     }

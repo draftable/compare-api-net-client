@@ -9,9 +9,11 @@ using Newtonsoft.Json;
 
 namespace Draftable.CompareAPI.Client.Internal
 {
-    internal class SerializationUtils
+    internal static class SerializationUtils
     {
-        /// <exception cref="Comparisons.UnknownResponseException">Unable to parse the response as a comparison.</exception>
+        /// <exception cref="Comparisons.UnknownResponseException">
+        ///     Unable to parse the response as a comparison.
+        /// </exception>
         [Pure]
         [NotNull]
         public static Comparison DeserializeComparison([NotNull] string jsonComparison)
@@ -32,7 +34,9 @@ namespace Draftable.CompareAPI.Client.Internal
             }
         }
 
-        /// <exception cref="Comparisons.UnknownResponseException">Unable to parse the response as a series of comparisons.</exception>
+        /// <exception cref="Comparisons.UnknownResponseException">
+        ///     Unable to parse the response and extract the array of comparison results.
+        /// </exception>
         [Pure]
         [NotNull]
         public static List<Comparison> DeserializeAllComparisons([NotNull] string jsonComparisonArray)
@@ -56,7 +60,9 @@ namespace Draftable.CompareAPI.Client.Internal
             }
         }
 
-        /// <exception cref="Comparisons.UnknownResponseException">Unable to parse the response as an export.</exception>
+        /// <exception cref="Comparisons.UnknownResponseException">
+        ///     Unable to parse the response as an export.
+        /// </exception>
         [Pure]
         [NotNull]
         public static Export DeserializeExport([NotNull] string jsonExport)
@@ -82,21 +88,9 @@ namespace Draftable.CompareAPI.Client.Internal
         [Serializable]
         internal class AllComparisonsResult
         {
-            /*
-                // Unnecessary fields
-                [DataMember(Name="count")]
-                public int Count { get; private set; }
-
-                [DataMember(Name="limit"), CanBeNull]
-                public int? Limit { get; private set; }
-
-                [DataMember(Name="offset")]
-                public int Offset { get; private set; }
-                */
-
-            // ReSharper disable once NotNullMemberIsNotInitialized
             [DataMember(Name = "results")]
             [NotNull]
+            // ReSharper disable once NotNullMemberIsNotInitialized
             public List<Comparison> Results { get; private set; }
         }
     }

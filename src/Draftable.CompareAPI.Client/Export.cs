@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Draftable.CompareAPI.Client
 {
     /// <summary>
-    ///     Represents an export, created via the Draftable API
+    ///     Represents an export created via the Draftable API.
     /// </summary>
     [PublicAPI]
     [DataContract(Name = "export")]
@@ -17,6 +17,7 @@ namespace Draftable.CompareAPI.Client
         /// </summary>
         [DataMember(Name = "identifier")]
         [NotNull]
+        // ReSharper disable once NotNullMemberIsNotInitialized
         public string Identifier { get; private set; }
 
         /// <summary>
@@ -24,6 +25,7 @@ namespace Draftable.CompareAPI.Client
         /// </summary>
         [DataMember(Name = "comparison")]
         [NotNull]
+        // ReSharper disable once NotNullMemberIsNotInitialized
         public string Comparison { get; private set; }
 
         /// <summary>
@@ -31,6 +33,7 @@ namespace Draftable.CompareAPI.Client
         /// </summary>
         [DataMember(Name = "url")]
         [NotNull]
+        // ReSharper disable once NotNullMemberIsNotInitialized
         public string Url { get; private set; }
 
         /// <summary>
@@ -38,18 +41,23 @@ namespace Draftable.CompareAPI.Client
         /// </summary>
         [DataMember(Name = "kind")]
         [NotNull]
+        // ReSharper disable once NotNullMemberIsNotInitialized
         public string Kind { get; private set; }
 
         /// <summary>
-        ///     Indicates if the export is Ready.
+        ///     Indicates if processing of the export request has completed.
         /// </summary>
         [DataMember(Name = "ready")]
         public bool Ready { get; private set; }
 
         /// <summary>
-        ///     Indicates if the export has failed.
+        ///     Indicates if exporting failed if <see cref="Ready" /> is true.
         /// </summary>
+        /// <remarks>
+        ///     Will be <see langword="null" /> if the export is not <see cref="Ready" />.
+        /// </remarks>
+        /// TODO: Ensure above re: null is implemented.
         [DataMember(Name = "failed")]
-        public bool Failed { get; private set; }
+        public bool? Failed { get; private set; }
     }
 }

@@ -28,21 +28,19 @@ namespace Draftable.CompareAPI.Client.Internal
         {
             var jsonPolicy = JsonConvert.SerializeObject(new object[] {accountId, identifier, validUntilTimestamp});
 
-            return HMACHexDigest(authToken, jsonPolicy.AssertNotNull());
+            return HmacHexDigest(authToken, jsonPolicy.AssertNotNull());
         }
-
-        #region HMACHexDigest
 
         [Pure]
         [NotNull]
-        private static string HMACHexDigest([NotNull] string key, [NotNull] string content)
+        private static string HmacHexDigest([NotNull] string key, [NotNull] string content)
         {
-            return Hexify(HMACDigest(key, content));
+            return Hexify(HmacDigest(key, content));
         }
 
         [Pure]
         [NotNull]
-        private static byte[] HMACDigest([NotNull] string key, [NotNull] string content)
+        private static byte[] HmacDigest([NotNull] string key, [NotNull] string content)
         {
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key)))
             {
@@ -57,6 +55,7 @@ namespace Draftable.CompareAPI.Client.Internal
         {
             const string hexDigits = "0123456789abcdef";
             var sb = new StringBuilder(2 * bytes.Length);
+
             foreach (var b in bytes)
             {
                 sb.Append(hexDigits[b >> 4]);
@@ -65,7 +64,5 @@ namespace Draftable.CompareAPI.Client.Internal
 
             return sb.ToString();
         }
-
-        #endregion HMACHexDigest
     }
 }

@@ -1,7 +1,7 @@
 namespace Draftable.CompareAPI.Client
 {
     /// <summary>
-    /// Lists export kinds, available when calling Export API
+    ///     Export kinds available via the Export API.
     /// </summary>
     public static class ExportKinds
     {
