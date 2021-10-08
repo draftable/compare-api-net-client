@@ -1,5 +1,4 @@
 using System.Runtime.Serialization;
-
 using JetBrains.Annotations;
 
 
@@ -8,8 +7,7 @@ namespace Draftable.CompareAPI.Client
     /// <summary>
     ///     Represents an export created via the Draftable API.
     /// </summary>
-    [PublicAPI]
-    [DataContract(Name = "export")]
+    [PublicAPI, DataContract(Name = "export")]
     public class Export
     {
         /// <summary>
@@ -51,6 +49,12 @@ namespace Draftable.CompareAPI.Client
         public bool Ready { get; private set; }
 
         /// <summary>
+        ///     Indicates whether cover page should be included for combined exports
+        /// </summary>
+        [DataMember(Name = "include_cover_page")]
+        public bool IncludeCoverPage { get; private set; }
+
+        /// <summary>
         ///     Indicates if exporting failed if <see cref="Ready" /> is true.
         /// </summary>
         /// <remarks>
@@ -59,5 +63,11 @@ namespace Draftable.CompareAPI.Client
         /// TODO: Ensure above re: null is implemented.
         [DataMember(Name = "failed")]
         public bool? Failed { get; private set; }
+
+        /// <summary>
+        /// Error message for failed exports. This is set to null for successful exports.
+        /// </summary>
+        [DataMember(Name = "error_message"), CanBeNull]
+        public string ErrorMessage { get; private set; }
     }
 }

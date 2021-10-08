@@ -305,6 +305,35 @@ Console.WriteLine($"Viewer URL (expires in 1 hour): {viewerUrl}");
 - `GenerateIdentifier()`
   Generates a random unique comparison identifier
 
+### Creating exports
+
+Exports are created and accessed using `Exports` class and its public interface.
+
+- `Export Create(string comparisonId, string mode, bool icludeCoverPage = true)`
+  Returns an `Export` instance representing the newly created export. This method needs the following parameters:
+  - `comparisonId` - identifier of comparison, for which we run the export
+  - `mode` - type of the export we intend to run. Following values are supported here:
+    - `left` - content of the left comparison side, with deletions highlights applied
+    - `right` - content of the right comparison side, with insertions highlights applied
+    - `combined` - content of left and right document, placed side by side
+    - `single_page` - comparison content in single page mode.
+  - `icludeCoverPage` - indicates  whether combined comparison should include a cover page 
+
+There can be multiple exports of the same type, created for the same comparison.
+Class `Export` represents a  single export. It has the following properties:
+  - `Identifier` - Identifier of the export itself (note that it is different from the comparison ID).
+  - `Comparison` - Identifier of the comparison used for running this export 
+  - `Url` - Download url of the export document
+  - `Kind` - Export kind. Supported values: single_page, combined, left, right.
+  - `Ready` - Indicates if processing of the export request has completed.
+  - `IncludeCoverPage` - Indicates whether cover page should be included for combined exports
+  - `Failed` - Indicates if export has failed
+  - `ErrorMessage` - Error message for failed exports. This is set to null for successful exports.
+
+### Getting exports
+- `Export Get(string exportId)`
+  Retrieves existing export by its id. Note that the export returned here may not be ready yet. 
+
 Other information
 -----------------
 
