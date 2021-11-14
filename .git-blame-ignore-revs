@@ -8,5 +8,8 @@
 # By default in this repository:
 # git config blame.ignoreRevsFile .git-blame-ignore-revs
 
+# Apply ReSharper code formatting profile
+571236a31bcecbd4a4b1b4b1ffa68de04fd89c45
+
 # The great code-style formatting of 2021
 1e4f6269dd30850f5ed34c1afe7177f3216aaa30
