@@ -309,7 +309,7 @@ Console.WriteLine($"Viewer URL (expires in 1 hour): {viewerUrl}");
 
 Exports are created and accessed using `Exports` class and its public interface.
 
-- `Export Create(string comparisonId, string mode, bool icludeCoverPage = true)`
+- `Export Create(string comparisonId, string mode, bool includeCoverPage = true)`
   Returns an `Export` instance representing the newly created export. This method needs the following parameters:
   - `comparisonId` - identifier of comparison, for which we run the export
   - `mode` - type of the export we intend to run. Following values are supported here:
@@ -317,7 +317,7 @@ Exports are created and accessed using `Exports` class and its public interface.
     - `right` - content of the right comparison side, with insertions highlights applied
     - `combined` - content of left and right document, placed side by side
     - `single_page` - comparison content in single page mode.
-  - `icludeCoverPage` - indicates  whether combined comparison should include a cover page 
+  - `includeCoverPage` - indicates  whether combined comparison should include a cover page 
 
 There can be multiple exports of the same type, created for the same comparison.
 Class `Export` represents a  single export. It has the following properties:

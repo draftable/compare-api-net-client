@@ -27,7 +27,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         [Pure]
         [NotNull]
-        public Export Create(string comparisonId, string mode, bool icludeCoverPage = true)
+        public Export Create(string comparisonId, string mode, bool includeCoverPage = true)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace Draftable.CompareAPI.Client
                                             {
                                                 {"comparison", comparisonId},
                                                 {"kind", mode},
-                                                {"include_cover_page", icludeCoverPage.ToString()}
+                                                {"include_cover_page", includeCoverPage.ToString()}
                                             });
                 return DeserializeExport(response);
             }
