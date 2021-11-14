@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+
 using Draftable.CompareAPI.Client;
+
 using Newtonsoft.Json;
+
 
 namespace Sample.Core
 {
@@ -30,10 +33,11 @@ namespace Sample.Core
                 using (var exportClient = new Exports(Token, KnownURLs.CloudBaseURL, null))
                 {
                     // tuple here is: comparisonId,mode,exportId
-                    var exportInfos = StartExportsAndBuildInfosList(comparisonsCreated.Select(c => c.Identifier), exportClient);
+                    var exportInfos =
+                        StartExportsAndBuildInfosList(comparisonsCreated.Select(c => c.Identifier), exportClient);
                     foreach (var exportInfo in exportInfos)
                     {
-                        var exportRetrieved =exportClient.Get(exportInfo.Item3);
+                        var exportRetrieved = exportClient.Get(exportInfo.Item3);
                         var outputPath = Path.Combine(ExportsDir, $"{exportInfo.Item1}_{exportInfo.Item2}.pdf");
                         if (string.IsNullOrEmpty(exportRetrieved.Url))
                         {
@@ -47,6 +51,7 @@ namespace Sample.Core
                         }
                     }
                 }
+
                 return;
             }
             catch (Exception e)
@@ -56,15 +61,10 @@ namespace Sample.Core
             }
         }
 
-        private static List<Tuple<string, string, string>> StartExportsAndBuildInfosList(IEnumerable<string> compareIds, Exports exportClient)
+        private static List<Tuple<string, string, string>> StartExportsAndBuildInfosList(IEnumerable<string> compareIds,
+            Exports exportClient)
         {
-            var allModes = new[]
-            {
-                ExportKinds.Left,
-                ExportKinds.Right,
-                ExportKinds.SinglePage,
-                ExportKinds.Combined,
-            };
+            var allModes = new[] {ExportKinds.Left, ExportKinds.Right, ExportKinds.SinglePage, ExportKinds.Combined};
             var exportInfos = new List<Tuple<string, string, string>>();
             foreach (var cid in compareIds)
             {
@@ -88,12 +88,10 @@ namespace Sample.Core
                 foreach (var pair in filePairs)
                 {
                     var identifier = Comparisons.GenerateIdentifier();
-                    var newComparison = comparisons.Create(
-                        Comparisons.Side.FromFile(pair.Item1),
-                        Comparisons.Side.FromFile(pair.Item2),
-                        identifier: identifier,
-                        expires: TimeSpan.FromMinutes(100)
-                    );
+                    var newComparison = comparisons.Create(Comparisons.Side.FromFile(pair.Item1),
+                                                           Comparisons.Side.FromFile(pair.Item2),
+                                                           identifier,
+                                                           expires: TimeSpan.FromMinutes(100));
                     comparisonsCreated.Add(newComparison);
                 }
             }
@@ -110,9 +108,9 @@ namespace Sample.Core
                 {
                     new Tuple<string, string>("equations-1.pdf", "equations-2.pdf"),
                     new Tuple<string, string>("rotated-left.pdf", "rotated-right.pdf"),
-                    new Tuple<string, string>("eq2-left.pdf", "eq2-right.pdf"),
+                    new Tuple<string, string>("eq2-left.pdf", "eq2-right.pdf")
                 }.Select(t => new Tuple<string, string>(basicPath + t.Item1, basicPath + t.Item2))
-                .ToArray();
+                 .ToArray();
             return filePairs;
         }
     }
