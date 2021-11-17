@@ -307,17 +307,17 @@ Console.WriteLine($"Viewer URL (expires in 1 hour): {viewerUrl}");
 
 ### Creating exports
 
-Exports are created and accessed using `Exports` class and its public interface.
+Exports are created and accessed using `Comparisons.RunExport` method and asynchronous variant: `Comparisons.RunExportAsync`.
 
-- `Export Create(string comparisonId, string mode, bool includeCoverPage = true)`
+- `Export RunExport(string comparisonIdentifier, ExportKind kind, bool includeCoverPage = true)`
   Returns an `Export` instance representing the newly created export. This method needs the following parameters:
-  - `comparisonId` - identifier of comparison, for which we run the export
-  - `mode` - type of the export we intend to run. Following values are supported here:
+  - `comparisonIdentifier` - identifier of comparison, for which we run the export
+  - `kind` - kind of the export we intend to run. Following values are supported here:
     - `left` - content of the left comparison side, with deletions highlights applied
     - `right` - content of the right comparison side, with insertions highlights applied
     - `combined` - content of left and right document, placed side by side
     - `single_page` - comparison content in single page mode.
-  - `includeCoverPage` - indicates  whether combined comparison should include a cover page 
+  - `includeCoverPage` - relevant only for combined comparison, indicates whether it should include a cover page 
 
 There can be multiple exports of the same type, created for the same comparison.
 Class `Export` represents a  single export. It has the following properties:
@@ -331,8 +331,11 @@ Class `Export` represents a  single export. It has the following properties:
   - `ErrorMessage` - Error message for failed exports. This is set to null for successful exports.
 
 ### Getting exports
-- `Export Get(string exportId)`
-  Retrieves existing export by its id. Note that the export returned here may not be ready yet. 
+
+Existing exports are retrieved using `Comparisons.GetExport` method.
+
+- `Export GetExport(string exportIdentifier)`
+  Retrieves existing export by its identifier. Note that the export returned here may not be ready yet. 
 
 Other information
 -----------------

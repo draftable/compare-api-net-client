@@ -1057,8 +1057,11 @@ namespace Draftable.CompareAPI.Client
         /// <param name="comparisonIdentifier">
         ///     The unique identifier of the comparison to export
         /// </param>
-        /// <param name="exportKind">
+        /// <param name="kind">
         ///     Export kind. Supported values: single_page, combined, left, right.
+        /// </param>
+        /// <param name="includeCoverPage">
+        ///     Relevant only for combined comparison, indicates whether it should include a cover page
         /// </param>
         /// <returns>
         ///     An <see cref="Export" /> object giving metadata about the newly created export.
@@ -1075,7 +1078,7 @@ namespace Draftable.CompareAPI.Client
         [PublicAPI]
         [Pure]
         [NotNull]
-        public Export RunExport([NotNull] string comparisonIdentifier, string exportKind)
+        public Export RunExport([NotNull] string comparisonIdentifier, ExportKind kind, bool includeCoverPage = true)
         {
             ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
 
@@ -1083,7 +1086,9 @@ namespace Draftable.CompareAPI.Client
             {
                 var inputData = new Dictionary<string, string>
                 {
-                    {"comparison", comparisonIdentifier}, {"kind", exportKind}
+                    {"comparison", comparisonIdentifier},
+                    {"kind", ExportKindStrings.Resolve(kind)},
+                    {"includeCoverPage", includeCoverPage.ToString()}
                 };
 
                 var exportJson = _client.Post(_urls.Exports, data: inputData);
@@ -1103,8 +1108,11 @@ namespace Draftable.CompareAPI.Client
         /// <param name="comparisonIdentifier">
         ///     The unique identifier of the comparison to export
         /// </param>
-        /// <param name="exportKind">
+        /// <param name="kind">
         ///     Export kind. Supported values: single_page, combined, left, right.
+        /// </param>
+        /// <param name="includeCoverPage">
+        ///     Relevant only for combined comparison, indicates whether it should include a cover page
         /// </param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> for cancelling the operation.
@@ -1125,7 +1133,8 @@ namespace Draftable.CompareAPI.Client
         [Pure]
         [NotNull]
         public async Task<Export> RunExportAsync([NotNull] string comparisonIdentifier,
-                                                 string exportKind,
+                                                 ExportKind kind,
+                                                 bool includeCoverPage,
                                                  CancellationToken cancellationToken)
         {
             ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
@@ -1134,7 +1143,9 @@ namespace Draftable.CompareAPI.Client
             {
                 var inputData = new Dictionary<string, string>
                 {
-                    {"comparison", comparisonIdentifier}, {"kind", exportKind}
+                    {"comparison", comparisonIdentifier},
+                    {"kind", ExportKindStrings.Resolve(kind)},
+                    {"includeCoverPage", includeCoverPage.ToString()}
                 };
 
                 var exportJson =

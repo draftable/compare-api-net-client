@@ -1,6 +1,10 @@
 using System.Runtime.Serialization;
 
+using Draftable.CompareAPI.Client.Internal;
+
 using JetBrains.Annotations;
+
+using Newtonsoft.Json;
 
 
 namespace Draftable.CompareAPI.Client
@@ -62,7 +66,6 @@ namespace Draftable.CompareAPI.Client
         /// <remarks>
         ///     Will be <see langword="null" /> if the export is not <see cref="Ready" />.
         /// </remarks>
-        /// TODO: Ensure above re: null is implemented.
         [DataMember(Name = "failed")]
         public bool? Failed { get; private set; }
 
@@ -72,5 +75,13 @@ namespace Draftable.CompareAPI.Client
         [DataMember(Name = "error_message")]
         [CanBeNull]
         public string ErrorMessage { get; private set; }
+
+        [Pure]
+        public override string ToString()
+        {
+            var settings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
+
+            return JsonConvert.SerializeObject(this, Formatting.Indented, settings).AssertNotNull();
+        }
     }
 }
