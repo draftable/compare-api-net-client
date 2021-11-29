@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v1.1.1
+------
+
+- Support for comparison exports
+- Numerous improvements, fixes, & tweaks (see commit history)
+
 v1.1.0
 ------
 
