@@ -19,6 +19,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/draftable/compare-api-net-client</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <!-- Deprecated but included for compatibility -->
     <PackageIconUrl>https://raw.githubusercontent.com/draftable/compare-api-net-client/stable/nuget-icon.png</PackageIconUrl>
@@ -36,6 +37,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <None Include="Resources\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
