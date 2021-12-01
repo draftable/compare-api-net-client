@@ -25,6 +25,8 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
   - [Creating comparisons](#creating-comparisons)
   - [Displaying comparisons](#displaying-comparisons)
   - [Utility methods](#utility-methods)
+  - [Creating exports](#creating-exports)
+  - [Getting exports](#getting-exports)
 - [Other information](#other-information)
   - [Network & proxy configuration](#network--proxy-configuration)
   - [Self-signed certificates](#self-signed-certificates)
