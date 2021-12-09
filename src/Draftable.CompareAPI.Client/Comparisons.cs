@@ -1088,7 +1088,7 @@ namespace Draftable.CompareAPI.Client
                 {
                     {"comparison", comparisonIdentifier},
                     {"kind", ExportKindStrings.Resolve(kind)},
-                    {"includeCoverPage", includeCoverPage.ToString()}
+                    {"include_cover_page", includeCoverPage.ToString()}
                 };
 
                 var exportJson = _client.Post(_urls.Exports, data: inputData);
