@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.1.2
+------
+
+- Fix *include cover page* export option
+
 v1.1.1
 ------
 
