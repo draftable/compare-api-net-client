@@ -1376,7 +1376,8 @@ namespace Draftable.CompareAPI.Client
             "ppt", // PowerPoint 97-2003 Presentation
             "pptm", // PowerPoint Macro-Enabled Presentation
             "pptx", // PowerPoint Presentation
-            "rtf" // Rich Text Format
+            "rtf", // Rich Text Format
+            "txt" // text
         };
 
         private static readonly string _allowedFileTypesString = string.Join(", ", _allowedFileTypes.OrderBy(x => x));
