@@ -250,6 +250,7 @@ These constructors accept the following arguments:
   - PDF: `pdf`
   - Word: `docx`, `docm`, `doc`, `rtf`
   - PowerPoint: `pptx`, `pptm`, `ppt`
+  - text: `txt`
 - `displayName` _(optional)_  
   The name of the file shown in the comparison viewer
 
