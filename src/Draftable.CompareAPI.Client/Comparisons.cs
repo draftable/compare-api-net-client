@@ -698,6 +698,18 @@ namespace Draftable.CompareAPI.Client
                 return new FileSide(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
                                     fileType, displayName);
             }
+
+            /// <summary>
+            /// Generates comparison side from raw text blob.
+            /// </summary>
+            /// <param name="blob">Text to be compared</param>
+            /// <returns></returns>
+            [Pure]
+            [NotNull]
+            public static Side FromBlob([NotNull] string blob)
+            {
+                return new BlobSide(blob);
+            }
         }
 
 
@@ -764,6 +776,31 @@ namespace Draftable.CompareAPI.Client
             protected override IEnumerable<KeyValuePair<string, Stream>> FileContent =>
                 Enumerable.Empty<KeyValuePair<string, Stream>>();
         }
+
+        private class BlobSide : Side
+        {
+            [NotNull] private readonly string _blob;
+
+            /// <exception cref="ArgumentOutOfRangeException">
+            ///     <paramref name="sourceURL" /> could not be parsed as an absolute HTTP or
+            ///     HTTPS URL.
+            /// </exception>
+            internal BlobSide([NotNull] string blob)
+            {
+                _blob = blob ?? throw new ArgumentNullException(nameof(blob));
+            }
+
+            protected override IEnumerable<KeyValuePair<string, string>> FormData =>
+                new[]
+                {
+                    new KeyValuePair<string, string>("file_type", "txt"),
+                    new KeyValuePair<string, string>("blob", _blob)
+                };
+
+            protected override IEnumerable<KeyValuePair<string, Stream>> FileContent =>
+                Enumerable.Empty<KeyValuePair<string, Stream>>();
+        }
+
 
         #endregion Side
 
