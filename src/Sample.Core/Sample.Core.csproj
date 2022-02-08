@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
     <Authors>Draftable</Authors>
     <Company>Draftable</Company>
     <Product>Draftable Compare API - Client Library</Product>
     <Copyright>Copyright © Draftable</Copyright>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
