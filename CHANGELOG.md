@@ -5,6 +5,8 @@ v1.1.2
 ------
 
 - Fix *include cover page* export option
+- Update .Net Framework minimal supported version to 4.6.2
+- Add compare txt files support
 
 v1.1.1
 ------

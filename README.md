@@ -35,7 +35,7 @@ Requirements
 ------------
 
 - Operating system: Any maintained Linux, macOS, or Windows release
-- .NET runtime: .NET Framework 4.5.2+ (Windows only) or .NET Core 3.1+
+- .NET runtime: .NET Framework 4.6.2+ (Windows only) or .NET Core 3.1+
 
 Getting started
 ---------------
