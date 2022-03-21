@@ -1111,11 +1111,11 @@ namespace Draftable.CompareAPI.Client
         /// <param name="kind">
         ///     Export kind. Supported values: single_page, combined, left, right.
         /// </param>
-        /// <param name="includeCoverPage">
-        ///     Relevant only for combined comparison, indicates whether it should include a cover page
-        /// </param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> for cancelling the operation.
+        /// </param>
+        /// <param name="includeCoverPage">
+        ///     Relevant only for combined comparison, indicates whether it should include a cover page
         /// </param>
         /// <returns>
         ///     An <see cref="Export" /> object giving metadata about the newly created export.
@@ -1134,8 +1134,8 @@ namespace Draftable.CompareAPI.Client
         [NotNull]
         public async Task<Export> RunExportAsync([NotNull] string comparisonIdentifier,
                                                  ExportKind kind,
-                                                 bool includeCoverPage,
-                                                 CancellationToken cancellationToken)
+                                                 CancellationToken cancellationToken,
+                                                 bool includeCoverPage = true)
         {
             ValidateIdentifier(comparisonIdentifier ?? throw new ArgumentNullException(nameof(comparisonIdentifier)));
 
@@ -1145,7 +1145,7 @@ namespace Draftable.CompareAPI.Client
                 {
                     {"comparison", comparisonIdentifier},
                     {"kind", ExportKindStrings.Resolve(kind)},
-                    {"includeCoverPage", includeCoverPage.ToString()}
+                    {"include_cover_page", includeCoverPage.ToString()}
                 };
 
                 var exportJson =
