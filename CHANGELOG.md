@@ -1,10 +1,15 @@
 Changelog
 =========
 
-v1.1.3
+v1.1.4
 ------
 
 - Fix for *include cover page* export option in async Export method
+
+v1.1.3
+------
+
+- Set of misc fixes
 
 v1.1.2
 ------
