@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.1.5
+------
+
+- Fix for bug in setting comparison expiry time
+
 v1.1.4
 ------
 

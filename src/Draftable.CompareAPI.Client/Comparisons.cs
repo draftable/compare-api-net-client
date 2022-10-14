@@ -806,19 +806,10 @@ namespace Draftable.CompareAPI.Client
             ValidateExpires(expires);
             try
             {
-                return DeserializeComparison(_client.Post(_urls.Comparisons,
-                                                          data: new Dictionary<string, string>
-                                                              {
-                                                                  {"identifier", identifier},
-                                                                  {"public", isPublic ? "true" : null},
-                                                                  {
-                                                                      "expiry_time",
-                                                                      SerializeDateTime(DateTime.UtcNow + expires)
-                                                                  }
-                                                              }.Concat(left.GetFormData("left"))
-                                                               .Concat(right.GetFormData("right")),
-                                                          files: left.GetFileContent("left")
-                                                                     .Concat(right.GetFileContent("right"))));
+                return DeserializeComparison(
+                    _client.Post(_urls.Comparisons,
+                                 data: BuildComparisonCreationData(left, right, identifier, isPublic, expires),
+                                 files: BuildFilesContentForComparisonCreation(left, right)));
             }
             catch (RestApiClient.UnexpectedResponseException ex)
             {
@@ -905,28 +896,36 @@ namespace Draftable.CompareAPI.Client
             ValidateExpires(expires);
             try
             {
-                return DeserializeComparison(await _client.PostAsync(_urls.Comparisons,
-                                                                     cancellationToken,
-                                                                     data: new Dictionary<string, string>
-                                                                         {
-                                                                             {"identifier", identifier},
-                                                                             {"public", isPublic ? "true" : null},
-                                                                             {
-                                                                                 "expires",
-                                                                                 SerializeDateTime(
-                                                                                     DateTime.UtcNow + expires)
-                                                                             }
-                                                                         }.Concat(left.GetFormData("left"))
-                                                                          .Concat(right.GetFormData("right")),
-                                                                     files: left.GetFileContent("left")
-                                                                        .Concat(right.GetFileContent("right")))
-                                                          .ConfigureAwait(false));
+                var comparisonSerialized =
+                    await _client.PostAsync(_urls.Comparisons, cancellationToken,
+                                            data: BuildComparisonCreationData(left, right, identifier, isPublic, expires),
+                                            files: BuildFilesContentForComparisonCreation(left, right))
+                                 .ConfigureAwait(false);
+                return DeserializeComparison(comparisonSerialized);
             }
             catch (RestApiClient.UnexpectedResponseException ex)
             {
                 throw BadRequestException.For(ex) ??
                       InvalidCredentialsException.For(ex) ?? new UnknownResponseException(ex);
             }
+        }
+
+        private static IEnumerable<KeyValuePair<string, Stream>> BuildFilesContentForComparisonCreation(Side left, Side right)
+            => left.GetFileContent("left").Concat(right.GetFileContent("right"));
+
+        private static IEnumerable<KeyValuePair<string, string>> BuildComparisonCreationData(
+            Side left, Side right, string identifier, bool isPublic, TimeSpan? expires)
+        {
+            return new Dictionary<string, string>
+                {
+                    {"identifier", identifier},
+                    {"public", isPublic ? "true" : null},
+                    {
+                        "expiry_time",
+                        SerializeDateTime(DateTime.UtcNow + expires)
+                    }
+                }.Concat(left.GetFormData("left"))
+                 .Concat(right.GetFormData("right"));
         }
 
         #endregion Side, Create[Async]
@@ -1350,7 +1349,7 @@ namespace Draftable.CompareAPI.Client
         ///     An optional <see cref="DateTime" /> to serialize in ISO format.
         /// </param>
         /// <returns>
-        //      If a <paramref name="dateTime" /> was provided, its serialized representation in ISO format, otherwise <see langword="null" />.
+        ///      If a <paramref name="dateTime" /> was provided, its serialized representation in ISO format, otherwise <see langword="null" />.
         /// </returns>
         [Pure]
         [CanBeNull]
