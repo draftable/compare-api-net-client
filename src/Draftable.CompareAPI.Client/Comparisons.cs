@@ -536,13 +536,24 @@ namespace Draftable.CompareAPI.Client
         ///     other overloads to create <see cref="Side" /> objects.
         /// </remarks>
         [PublicAPI]
-        public abstract class Side
+        public abstract class Side : IDisposable
         {
             internal Side() { }
 
             [NotNull] protected abstract IEnumerable<KeyValuePair<string, string>> FormData { get; }
 
             [NotNull] protected abstract IEnumerable<KeyValuePair<string, Stream>> FileContent { get; }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                // does nothing.
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
 
             /// <exception cref="ArgumentOutOfRangeException"><paramref name="sideName" /> must be one of "left" or "right".</exception>
             [Pure]
@@ -725,6 +736,12 @@ namespace Draftable.CompareAPI.Client
 
             protected override IEnumerable<KeyValuePair<string, Stream>> FileContent =>
                 new[] {new KeyValuePair<string, Stream>("file", _file)};
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+                _file.Dispose();
+            }
         }
 
 

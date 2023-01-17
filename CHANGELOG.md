@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.1.6
+------
+
+- Files access fixed: class `FileSide` is now `IDisposable` - disposing `FileSide` instance frees the local file lock
+
 v1.1.5
 ------
 

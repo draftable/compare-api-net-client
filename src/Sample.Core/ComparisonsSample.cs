@@ -140,8 +140,10 @@ namespace Sample.Core
         {
             var identifier = Comparisons.GenerateIdentifier();
 
-            return client.Create(Comparisons.Side.FromFile(SampleFileLeft),
-                                 Comparisons.Side.FromFile(SampleFileRight),
+            using(var leftSide = Comparisons.Side.FromFile(SampleFileLeft))
+                using(var rightSide = Comparisons.Side.FromFile(SampleFileRight))
+                    return client.Create(leftSide,
+                                 rightSide,
                                  identifier,
                                  expires: TimeSpan.FromMinutes(30));
         }
