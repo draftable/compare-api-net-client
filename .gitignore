@@ -42,6 +42,7 @@ packages/
 
 # Rider
 riderModule.iml
+src/.idea
 
 # Vim
 .netrwhist
